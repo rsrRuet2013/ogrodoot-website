@@ -1,6 +1,10 @@
 # Team Ogrodoot — Website Creation Prompt
 
-> **Stack:** Next.js 14 (App Router) · TypeScript · Three.js / React Three Fiber · Framer Motion · Tailwind CSS · shadcn/ui · GSAP (ScrollTrigger)
+> **Stack:** Next.js 16 (App Router) · TypeScript · Three.js / React Three Fiber · Framer Motion · Tailwind CSS v4 · shadcn/ui · GSAP (ScrollTrigger)
+>
+> **Package Manager:** pnpm
+>
+> **Note:** This project runs Next.js 16 which has breaking API changes from earlier versions. Always consult `node_modules/next/dist/docs/` before using any Next.js API.
 
 ---
 
@@ -26,12 +30,13 @@
 ```
 
 ### Typography
+All fonts are loaded via `next/font/google` in `src/app/layout.tsx` and exposed as CSS variables.
 ```
-Display / Hero:    "Orbitron" (Google Fonts) — geometric, space-tech feel
-Section Headers:   "Exo 2" — modern engineered look, readable at scale
-Body Text:         "Space Grotesk" — clean but with personality
-Data / HUD Labels: "JetBrains Mono" — monospace for telemetry-style data
-Accent / Callouts: "Rajdhani" — echoes South Asian identity subtly
+Display / Hero:    "Orbitron" (Google Fonts) — geometric, space-tech feel    → --font-orbitron
+Section Headers:   "Exo 2" — modern engineered look, readable at scale       → --font-exo2
+Body Text:         "Space Grotesk" — clean but with personality               → --font-space-grotesk
+Data / HUD Labels: "JetBrains Mono" — monospace for telemetry-style data     → --font-jetbrains-mono
+Accent / Callouts: "Rajdhani" — echoes South Asian identity subtly            → --font-rajdhani
 ```
 
 ### Visual Motifs
@@ -48,27 +53,30 @@ Accent / Callouts: "Rajdhani" — echoes South Asian identity subtly
 
 ## 📁 Project Structure
 
+The project uses the `src/` directory convention. Path alias: `@/* → ./src/*`
+
 ```
-/app
-  /                     → Landing Page (Home)
-  /about                → About the Team
-  /achievements         → Competition History & Awards
-  /team                 → Full Team Directory
-  /rover                → Rover Showcase (3D heavy)
-  /missions             → URC 2026 & Past Missions
-  /sponsor              → Sponsorship Packages
-  /contact              → Contact Page
-/components
-  /3d                   → Three.js / R3F scene components
-  /ui                   → shadcn/ui overrides + custom primitives
-  /sections             → Page-specific section components
-  /layout               → Navbar, Footer, PageWrapper
-/lib
-  /animations.ts        → Shared Framer Motion variants
-  /data                 → Team data, achievements, costs (typed JSON)
-/public
-  /models               → .glb rover models, Mars sphere model
-  /assets               → Logo, team photos, sub-team photos
+src/
+  app/
+    /                     → Landing Page (Home)
+    /about                → About the Team
+    /achievements         → Competition History & Awards
+    /team                 → Full Team Directory
+    /rover                → Rover Showcase (3D heavy)
+    /missions             → URC 2026 & Past Missions
+    /sponsor              → Sponsorship Packages
+    /contact              → Contact Page
+  components/
+    /3d                   → Three.js / R3F scene components
+    /ui                   → shadcn/ui overrides + custom primitives
+    /sections             → Page-specific section components
+    /layout               → Navbar, Footer, PageWrapper
+  lib/
+    /animations.ts        → Shared Framer Motion variants
+    /data                 → Team data, achievements, costs (typed JSON)
+public/
+  /models               → .glb rover models, Mars sphere model (added incrementally)
+  /assets               → Logo, team photos, sub-team photos (added incrementally)
   /textures             → Mars surface texture maps for Three.js
 ```
 
@@ -337,12 +345,13 @@ Accent / Callouts: "Rajdhani" — echoes South Asian identity subtly
      - Social links: Facebook, LinkedIn (icon + link)
      - Website: rsr-ruet.org/ogrodoot
      - Location: RUET, Rajshahi-6204, Bangladesh
-     - Embedded mini-map (Google Maps iframe, styled to match dark theme)
+     - Embedded mini-map (Google Maps iframe, styled to match dark theme — use `?maptype=satellite` for a space-compatible look, or use a static dark map image as fallback)
    - **Right: Contact Form**
      - Fields: Name, Organization, Email, Phone, Inquiry Type (dropdown: Sponsorship / Media / Collaboration / Other), Message
      - Submit button: `"Send Transmission"` — hover fires a brief particle burst
      - Form validation with inline error states
      - Success state: HUD-style `"MESSAGE RECEIVED"` confirmation animation
+     - **Backend:** Form submission hits a Next.js API route (`/api/contact`) which relays the message to a **Telegram bot** via the Telegram Bot API (`sendMessage`). The bot token and chat ID are stored in environment variables (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`). No external email service needed.
 3. **Social Strip:** Large icon links to all social platforms
 
 ---
@@ -364,7 +373,7 @@ Accent / Callouts: "Rajdhani" — echoes South Asian identity subtly
   2. Quick Links
   3. Contact info
   4. Competitions summary
-- Bottom bar: `"© 2025 Team Ogrodoot · RUET · All Rights Reserved"` + RUET logo
+- Bottom bar: `"© 2026 Team Ogrodoot · RUET · All Rights Reserved"` + RUET logo
 - Animated Mars horizon line across the top of the footer (SVG wave in mars-red/orange)
 
 ### Page Transition
@@ -388,7 +397,7 @@ Accent / Callouts: "Rajdhani" — echoes South Asian identity subtly
 
 ## 🎞️ Animation System
 
-### Framer Motion Variants (defined in `/lib/animations.ts`)
+### Framer Motion Variants (defined in `src/lib/animations.ts`)
 ```typescript
 // Fade up — standard section entry
 export const fadeUp = {
@@ -496,7 +505,6 @@ interface Achievement {
 ```typescript
 interface SponsorPackage {
   tier: "silver" | "gold" | "platinum"
-  priceINR: number
   priceBDT: number // 5 lac / 10 lac / 15 lac
   benefits: string[]
   highlighted?: boolean
@@ -516,72 +524,123 @@ interface CostItem {
 
 ### Next.js Config (`next.config.ts`)
 ```typescript
-const config = {
-  experimental: { optimizePackageImports: ["three", "framer-motion"] },
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  reactCompiler: true,
   images: { formats: ["image/avif", "image/webp"] },
+};
+
+export default nextConfig;
+```
+> **Note:** This is Next.js 16. Check `node_modules/next/dist/docs/` for valid config options. Do NOT assume v14/v15 APIs still exist.
+
+### Tailwind CSS v4 — Theme Configuration
+Tailwind v4 replaces `tailwind.config.js` with CSS-native `@theme` blocks in `globals.css`.
+```css
+@import "tailwindcss";
+
+@theme inline {
+  /* Color Palette */
+  --color-mars-red:     #C1440E;
+  --color-mars-orange:  #E8651A;
+  --color-deep-space:   #04060D;
+  --color-space-navy:   #080F1E;
+  --color-crater-gray:  #1A2035;
+  --color-star-white:   #EEF0F8;
+  --color-muted-nebula: #6B7A99;
+  --color-glow-amber:   #FF8C42;
+  --color-hud-teal:     #2BFFCB;
+  --color-ruet-blue:    #1A3A6B;
+
+  /* Font Families */
+  --font-orbitron:       var(--font-orbitron);
+  --font-exo2:          var(--font-exo2);
+  --font-space-grotesk: var(--font-space-grotesk);
+  --font-jetbrains:     var(--font-jetbrains-mono);
+  --font-rajdhani:      var(--font-rajdhani);
+
+  /* Custom Animations */
+  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+  --animate-scan-line:  scan-line 3s linear infinite;
+  --animate-orbit-spin: orbit-spin 20s linear infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px #C1440E40; }
+  50%      { box-shadow: 0 0 40px #C1440E80; }
+}
+@keyframes scan-line {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+@keyframes orbit-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 ```
-
-### Tailwind Config
-- Extend colors with all CSS variables above
-- Add custom animation: `pulse-glow`, `scan-line`, `orbit-spin`
-- Custom font family entries for Orbitron, Exo 2, Space Grotesk, JetBrains Mono
+Colors are then used as Tailwind utilities: `bg-mars-red`, `text-hud-teal`, `border-crater-gray`, etc.
 
 ### shadcn/ui Customization
-- Override default `card`, `badge`, `button`, `dialog`, `tabs`, `tooltip` to match Mars theme
+shadcn/ui is **already initialized** in the project. Customize these components to match the Mars theme:
+- Override default `card`, `badge`, `button`, `dialog`, `tabs`, `tooltip`
 - Custom theme: dark base, mars-red primary, hud-teal for focus rings
+- Component files live in `src/components/ui/`
 
 ### Performance Targets
 - Lighthouse score: > 85 on mobile, > 95 on desktop
 - Use `next/image` for all photos (auto WebP, lazy load, blur placeholder)
 - Dynamic import Three.js canvas components with `ssr: false`
-- Font: `next/font` with preload
-- 3D models: Compress with `gltf-pipeline`, target < 5MB per model
+- Font: `next/font/google` with preload — all 5 fonts loaded in `src/app/layout.tsx`
+- 3D models: Compress with `gltf-pipeline` or `gltf-transform`, target < 5MB per model
 
 ---
 
-## 📦 Key npm Packages
+## 📦 Key Packages
+
+All packages managed via **pnpm**. The project is already scaffolded.
 
 ```bash
-# Core
-npx create-next-app@latest ogrodoot --typescript --tailwind --app
+# Already installed:
+# next@16, react@19, three, @react-three/fiber, @react-three/drei
+# framer-motion, gsap, @gsap/react, clsx, tailwind-merge
+# tailwindcss@4, @tailwindcss/postcss, typescript
 
-# 3D
-npm i three @react-three/fiber @react-three/drei
+# shadcn/ui (already initialized)
+# Components added via: pnpx shadcn@latest add <component>
 
-# Animation
-npm i framer-motion gsap @gsap/react
+# Additional installs needed:
+pnpm add lucide-react           # Icons
+pnpm add recharts               # Cost breakdown donut chart (sponsor page)
+pnpm add next-sitemap            # Auto-generated sitemap
 
-# UI
-npx shadcn@latest init
-npm i lucide-react
-
-# Utilities
-npm i clsx tailwind-merge
-npm i @types/three
-
-# Optional — charts for cost breakdown
-npm i recharts
+pnpm add -D @types/three         # Three.js type definitions
 ```
 
 ---
 
-## 🖼️ Asset Checklist (Required from Team)
+## 🖼️ Asset Checklist
 
-| Asset | Format | Usage |
-|---|---|---|
-| Team Logo | SVG + PNG (transparent) | Navbar, footer, watermark |
-| Full Team Photo | JPG/WebP, ≥2000px wide | About hero, footer |
-| Sub-team photos (×6) | JPG/WebP, ≥1200px | Team page spotlights |
-| Lead photo (Ariful Islam Riad) | JPG/WebP, square | Leadership card |
-| Co-Lead photo | JPG/WebP, square | Leadership card |
-| Manager photo (S M Al Meraz) | JPG/WebP, square | Leadership card |
-| Sub-team lead photos (×6) | JPG/WebP, square | Team lead cards |
-| Individual member photos | JPG/WebP, square | Member grid |
-| Rover 3D model(s) | .glb (binary GLTF) | Rover page, home |
-| Mars texture maps | JPG/EXR | Three.js sphere |
-| Competition photos | JPG/WebP | Achievements |
-| RUET logo | SVG/PNG | About, footer |
+Assets are **added incrementally** as the project progresses. Use placeholder/generated images during development and swap in real assets when available.
+
+| Asset | Format | Usage | Status |
+|---|---|---|---|
+| Team Logo | SVG + PNG (transparent) | Navbar, footer, watermark | 🔲 Needed |
+| Full Team Photo | JPG/WebP, ≥2000px wide | About hero, footer | 🔲 Needed |
+| Sub-team photos (×6) | JPG/WebP, ≥1200px | Team page spotlights | 🔲 Needed |
+| Lead photo (Ariful Islam Riad) | JPG/WebP, square | Leadership card | 🔲 Needed |
+| Co-Lead photo | JPG/WebP, square | Leadership card | 🔲 Needed |
+| Manager photo (S M Al Meraz) | JPG/WebP, square | Leadership card | 🔲 Needed |
+| Sub-team lead photos (×6) | JPG/WebP, square | Team lead cards | 🔲 Needed |
+| Individual member photos | JPG/WebP, square | Member grid | 🔲 Needed |
+| Rover 3D model(s) | .glb (binary GLTF) | Rover page, home | 🔲 Needed |
+| Mars planet model | .glb | Hero background | ✅ `public/models/mars_planet_hero_section.glb` |
+| Mars texture maps | JPG/EXR | Three.js sphere | 🔲 Needed |
+| Competition photos | JPG/WebP | Achievements | 🔲 Needed |
+| RUET logo | SVG/PNG | About, footer | 🔲 Needed |
+| OG Image | JPG, 1200×630 | Social sharing | 🔲 Needed |
+
+> **Dev strategy:** Build layouts and components with placeholders first. Drop in real assets to `public/assets/` and `public/photos/` when they arrive from the team.
 
 ---
 
@@ -605,8 +664,10 @@ npm i recharts
 ## 🔍 SEO & Meta
 
 ```typescript
-// app/layout.tsx
-export const metadata = {
+// src/app/layout.tsx
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
   title: "Team Ogrodoot | RUET Mars Rover Team",
   description: "Bangladesh's leading Mars rover team from Rajshahi University of Engineering & Technology, competing in URC 2026.",
   keywords: ["mars rover", "RUET", "Team Ogrodoot", "URC 2026", "Bangladesh robotics"],
@@ -620,8 +681,15 @@ export const metadata = {
 
 - Each page gets its own `generateMetadata()` export
 - Structured data (JSON-LD) for organization schema
-- Sitemap auto-generated via `next-sitemap`
+- Sitemap auto-generated via `next-sitemap` (installed as dependency)
+
+### Environment Variables (`.env.local`)
+```bash
+# Telegram bot for contact form relay
+TELEGRAM_BOT_TOKEN=<bot-token-from-@BotFather>
+TELEGRAM_CHAT_ID=<target-chat-or-group-id>
+```
 
 ---
 
-*Prompt Version: 1.0 · For: Team Ogrodoot · Stack: Next.js + Three.js + Framer Motion*
+*Prompt Version: 1.1 · For: Team Ogrodoot · Stack: Next.js 16 + Tailwind v4 + Three.js + Framer Motion · Updated: 2026-03-30*
