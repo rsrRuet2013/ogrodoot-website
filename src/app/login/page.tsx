@@ -1,0 +1,2 @@
+import { LoginForm } from "@/components/auth/AuthForms";
+export default function LoginPage() { return <main className="mars-bg-gradient flex min-h-screen items-center justify-center px-5 pt-20"><section className="w-full max-w-md border border-slate-700/80 bg-[#0a1128]/80 p-7 shadow-2xl backdrop-blur md:p-10"><p className="font-mono text-xs uppercase tracking-[0.28em] text-cyan-300">ROSB // secure access</p><h1 className="mb-7 mt-4 font-orbitron text-3xl font-bold text-white">Member login</h1><LoginForm /></section></main>; }

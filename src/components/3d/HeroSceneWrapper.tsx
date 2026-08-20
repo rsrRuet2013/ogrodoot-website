@@ -9,7 +9,11 @@ const HeroScene = dynamic(() => import("@/components/3d/HeroScene"), {
 
 export function HeroSceneWrapper() {
   return (
-    <Canvas camera={{ position: [0, 0, 10], fov: 60 }}>
+    <Canvas
+      camera={{ position: [0, 0, 9], fov: 55 }}
+      dpr={[1, 2]}
+      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+    >
       <HeroScene />
     </Canvas>
   );

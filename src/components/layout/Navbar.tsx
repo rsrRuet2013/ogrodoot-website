@@ -1,168 +1,131 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { usePathname, useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, LogOut, Menu, ShieldCheck, UserRound, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
-const navLinks = [
+type NavItem =
+  | { name: string; href: string; links?: never }
+  | { name: string; links: { name: string; href: string }[]; href?: never };
+
+const navItems: NavItem[] = [
   { name: "Home", href: "/" },
-  { name: "About", href: "/about" },
-  { name: "Team", href: "/team" },
   { name: "Rover", href: "/rover" },
-  { name: "Achievements", href: "/achievements" },
-  { name: "Missions", href: "/missions" },
-  { name: "Sponsor", href: "/sponsor" },
+  { name: "About", links: [
+    { name: "Our Story", href: "/about" },
+    { name: "Achievements", href: "/achievements" },
+    { name: "Media & Press", href: "/media" },
+  ] },
+  { name: "Team", links: [
+    { name: "Current Team", href: "/team" },
+    { name: "Alumni", href: "/alumni" },
+  ] },
   { name: "Contact", href: "/contact" },
 ];
+
+type SessionUser = { name: string; profilePicUrl: string; role: "member" | "lead" | "admin" };
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [user, setUser] = useState<SessionUser | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
+  const isCurrentPath = (href: string) => href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setIsScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/auth/me").then(async (res) => { const data = await res.json(); if (!cancelled) setUser(data.user ?? null); }).catch(() => { if (!cancelled) setUser(null); });
+    return () => { cancelled = true; };
+  }, [pathname]);
+
+  async function signOut() {
+    setUserMenuOpen(false);
+    setIsMobileMenuOpen(false);
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/");
+    router.refresh();
+  }
+
+  const hasDropdownLinks = (item: NavItem): item is Extract<NavItem, { links: { name: string; href: string }[] }> => Array.isArray(item.links);
+  const dropdownIsActive = (item: Extract<NavItem, { links: unknown[] }>) => item.links.some((link) => isCurrentPath(link.href));
 
   return (
     <>
-      <header
-        className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-          isScrolled
-            ? "bg-space-navy/90 backdrop-blur-md py-4 shadow-lg border-b border-white/10"
-            : "bg-transparent py-6"
-        )}
-      >
-        <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-10 h-10 overflow-hidden rounded-full border border-white/20 group-hover:border-[var(--color-mars-red)] transition-colors">
-              <Image 
-                src="/logo-white.png" 
-                alt="Team Ogrodoot Logo" 
-                fill
-                sizes="(max-width: 768px) 40px, 40px"
-                className="object-contain p-1"
-              />
+      <header className={cn("fixed inset-x-0 top-0 z-50 transition-all duration-500", isScrolled ? "border-b border-slate-700/60 bg-[#0a0b0e]/90 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.9)] backdrop-blur-xl" : "bg-gradient-to-b from-black/80 via-black/20 to-transparent py-5")}>
+        <div className="container mx-auto flex items-center justify-between px-4 md:px-8">
+          <Link href="/" aria-label="Ogrodoot home" className="group relative flex items-center gap-3.5">
+            <div className="relative h-11 w-11 rounded-full bg-gradient-to-br from-slate-200 via-slate-500 to-slate-800 p-px shadow-md transition-all duration-500 group-hover:from-slate-100 group-hover:to-cyan-500">
+              <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-[#0a0b0e]"><Image src="/logo-white.png" alt="Team Ogrodoot logo" fill sizes="44px" className="object-contain p-1.5 transition-transform duration-500 group-hover:scale-110" /></div>
             </div>
-            <span className="font-orbitron font-bold text-lg tracking-wider hidden sm:block">
-              OGRODOOT
-            </span>
+            <div className="hidden flex-col sm:flex"><span className="font-orbitron text-lg font-extrabold tracking-widest text-slate-100">OGRODOOT</span><span className="-mt-1 font-mono text-[9px] uppercase tracking-[0.25em] text-slate-400">Mars Rover Team</span></div>
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1.5 lg:gap-4 p-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href;
-              return (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className={cn(
-                    "relative px-4 py-2 rounded-full text-sm font-medium transition-colors hover:text-white",
-                    isActive ? "text-star-white" : "text-muted-foreground"
-                  )}
-                >
-                  {isActive && (
-                    <motion.div
-                      layoutId="active-nav"
-                      className="absolute inset-0 bg-white/10 rounded-full"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                    />
-                  )}
-                  <span className="relative z-10">{link.name}</span>
-                </Link>
-              );
-            })}
+          <nav aria-label="Primary navigation" onMouseLeave={() => setOpenDropdown(null)} className="relative hidden items-center gap-1 rounded-full border border-slate-700/60 bg-[#12141c]/80 p-1.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-xl md:flex">
+            {navItems.map((item) => hasDropdownLinks(item) ? (
+              <div key={item.name} className="relative" onMouseEnter={() => setOpenDropdown(item.name)}>
+                <button type="button" aria-haspopup="menu" aria-expanded={openDropdown === item.name} onClick={() => setOpenDropdown(openDropdown === item.name ? null : item.name)} className={cn("flex items-center gap-1 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-all", dropdownIsActive(item) ? "bg-slate-600 text-white shadow-[0_0_15px_rgba(255,255,255,0.2)]" : "text-slate-300 hover:bg-slate-700/60 hover:text-white")}>
+                  {item.name}<ChevronDown className={cn("h-3.5 w-3.5 transition-transform", openDropdown === item.name && "rotate-180")} />
+                </button>
+                <AnimatePresence>{openDropdown === item.name && <motion.div role="menu" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="absolute left-1/2 top-full mt-3 w-48 -translate-x-1/2 overflow-hidden rounded-xl border border-slate-600/70 bg-[#10131b]/95 p-1.5 shadow-2xl backdrop-blur-xl">
+                  {item.links.map((link) => <Link key={link.name} href={link.href} role="menuitem" onClick={() => setOpenDropdown(null)} className={cn("block rounded-lg px-3 py-2.5 text-xs font-semibold tracking-wide transition-colors", isCurrentPath(link.href) ? "bg-slate-600/60 text-white" : "text-slate-300 hover:bg-slate-700/70 hover:text-white")}>{link.name}</Link>)}
+                </motion.div>}</AnimatePresence>
+              </div>
+            ) : <Link key={item.name} href={item.href} className={cn("rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-all", isCurrentPath(item.href) ? "bg-slate-600 text-white shadow-[0_0_15px_rgba(255,255,255,0.2)]" : "text-slate-300 hover:bg-slate-700/60 hover:text-white")}>{item.name}</Link>)}
           </nav>
 
-          {/* CTA & Mobile Toggle */}
-          <div className="flex items-center gap-4">
-            <Button 
-              asChild 
-              className="hidden sm:flex rounded-full bg-[var(--color-mars-red)] hover:bg-[var(--color-mars-orange)] text-white font-semibold transition-all group"
-            >
-              <Link href="/sponsor">
-                Sponsor Us
-                <span className="ml-2 w-6 h-6 rounded-full bg-black/20 flex items-center justify-center group-hover:translate-x-1 group-active:scale-95 transition-transform">
-                  ↗
-                </span>
-              </Link>
-            </Button>
-            
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden relative z-[60] p-2 text-white bg-white/10 rounded-full border border-white/20"
-              aria-label="Toggle menu"
-            >
-              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+          <div className="hidden items-center gap-2 md:flex">
+            {user ? (
+              <div className="relative" onMouseLeave={() => setUserMenuOpen(false)}>
+                <button type="button" aria-haspopup="menu" aria-expanded={userMenuOpen} onClick={() => setUserMenuOpen((open) => !open)} className={cn("flex items-center gap-2.5 rounded-full border py-1.5 pl-1.5 pr-4 transition-all", userMenuOpen ? "border-cyan-300/70 bg-cyan-400/10" : "border-slate-600/70 bg-[#12141c]/80 hover:border-cyan-400/60")}>
+                  <span className="relative h-8 w-8 overflow-hidden rounded-full border border-slate-600 bg-slate-800">
+                    {user.profilePicUrl ? <img src={user.profilePicUrl} alt="" className="h-full w-full object-cover" /> : <UserRound size={16} className="absolute inset-0 m-auto text-slate-400" />}
+                  </span>
+                  <span className="max-w-[9rem] truncate text-xs font-semibold text-slate-100">{user.name}</span>
+                  <ChevronDown className={cn("h-3.5 w-3.5 text-slate-400 transition-transform", userMenuOpen && "rotate-180")} />
+                </button>
+                <AnimatePresence>{userMenuOpen && <motion.div role="menu" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="absolute right-0 top-full mt-3 w-52 overflow-hidden rounded-xl border border-slate-600/70 bg-[#10131b]/95 p-1.5 shadow-2xl backdrop-blur-xl">
+                  {user.role === "admin" && <Link href="/admin" role="menuitem" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-xs font-semibold tracking-wide text-slate-200 transition-colors hover:bg-slate-700/70 hover:text-white"><ShieldCheck size={15} className="text-cyan-300" />Admin Console</Link>}
+                  <button type="button" role="menuitem" onClick={signOut} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-xs font-semibold tracking-wide text-red-300 transition-colors hover:bg-red-950/60 hover:text-red-200"><LogOut size={15} />Sign out</button>
+                </motion.div>}</AnimatePresence>
+              </div>
+            ) : <>
+              <Link href="/login" className={cn("rounded-full px-3 py-2 text-[10px] font-semibold uppercase tracking-wider transition-colors", isCurrentPath("/login") ? "text-cyan-300" : "text-slate-300 hover:text-white")}>Login</Link>
+              <Link href="/register" className={cn("rounded-full border px-4 py-2 text-[10px] font-bold uppercase tracking-wider transition-all", isCurrentPath("/register") ? "border-cyan-300 bg-cyan-300 text-slate-950" : "border-cyan-400/70 bg-cyan-400/10 text-cyan-200 hover:border-cyan-200 hover:bg-cyan-400 hover:text-slate-950")}>Join ROSB</Link>
+            </>}
           </div>
+
+          <button onClick={() => setIsMobileMenuOpen((open) => !open)} className="relative z-[60] rounded-full border border-slate-700/60 bg-[#12141c]/80 p-2.5 text-slate-200 backdrop-blur-md transition-transform active:scale-95 md:hidden" aria-label="Toggle navigation menu" aria-expanded={isMobileMenuOpen}>{isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}</button>
         </div>
       </header>
 
-      {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[55] bg-deep-space/95 backdrop-blur-2xl flex flex-col items-center justify-center"
-          >
-            <div className="flex flex-col items-center gap-6 text-2xl font-orbitron">
-              {navLinks.map((link, i) => (
-                <motion.div
-                  key={link.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ delay: i * 0.05 + 0.1 }}
-                >
-                  <Link
-                    href={link.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={cn(
-                      "transition-colors hover:text-[var(--color-mars-red)]",
-                      pathname === link.href ? "text-[var(--color-mars-red)] font-bold" : "text-star-white"
-                    )}
-                  >
-                    {link.name}
-                  </Link>
-                </motion.div>
-              ))}
-              
-              <motion.div
-                 initial={{ opacity: 0, scale: 0.9 }}
-                 animate={{ opacity: 1, scale: 1 }}
-                 transition={{ delay: 0.5 }}
-                 className="mt-8"
-              >
-                <Button 
-                  asChild 
-                  size="lg"
-                  className="rounded-full bg-[var(--color-mars-red)] hover:bg-[var(--color-mars-orange)] text-white"
-                >
-                  <Link href="/sponsor" onClick={() => setIsMobileMenuOpen(false)}>
-                    BECOME A SPONSOR
-                  </Link>
-                </Button>
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <AnimatePresence>{isMobileMenuOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[55] flex items-center justify-center overflow-y-auto bg-[#0a0b0e]/95 px-6 py-24 backdrop-blur-xl md:hidden">
+        <nav aria-label="Mobile navigation" className="relative flex w-full max-w-xs flex-col items-center gap-6 text-center font-orbitron">
+          {user && <div className="flex flex-col items-center gap-2"><span className="relative h-16 w-16 overflow-hidden rounded-full border border-cyan-400/50 bg-slate-800">{user.profilePicUrl ? <img src={user.profilePicUrl} alt="" className="h-full w-full object-cover" /> : <UserRound size={28} className="absolute inset-0 m-auto text-slate-400" />}</span><p className="text-sm font-bold text-slate-100">{user.name}</p></div>}
+          {navItems.map((item) => hasDropdownLinks(item) ? <div key={item.name} className="space-y-2"><p className="text-sm font-semibold uppercase tracking-widest text-slate-200">{item.name}</p><div className="flex flex-col gap-2">{item.links.map((link) => <Link key={link.name} href={link.href} onClick={() => setIsMobileMenuOpen(false)} className={cn("text-xs tracking-wider transition-colors", isCurrentPath(link.href) ? "text-white" : "text-slate-500 hover:text-slate-200")}>{link.name}</Link>)}</div></div> : <Link key={item.name} href={item.href} onClick={() => setIsMobileMenuOpen(false)} className={cn("text-sm font-semibold uppercase tracking-widest transition-colors", isCurrentPath(item.href) ? "text-white" : "text-slate-400 hover:text-slate-100")}>{item.name}</Link>)}
+          <div className="mt-2 flex w-full gap-3 border-t border-slate-700 pt-6">
+            {user ? <>
+              {user.role === "admin" && <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} className="flex-1 border border-cyan-400/70 px-3 py-3 text-xs font-bold uppercase tracking-wider text-cyan-200">Admin Console</Link>}
+              <button type="button" onClick={signOut} className="flex-1 border border-red-500/60 px-3 py-3 text-xs font-bold uppercase tracking-wider text-red-300">Sign out</button>
+            </> : <>
+              <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="flex-1 border border-slate-600 px-3 py-3 text-xs font-bold uppercase tracking-wider text-slate-200">Login</Link>
+              <Link href="/register" onClick={() => setIsMobileMenuOpen(false)} className="flex-1 border border-cyan-400 bg-cyan-400/10 px-3 py-3 text-xs font-bold uppercase tracking-wider text-cyan-200">Join ROSB</Link>
+            </>}
+          </div>
+        </nav>
+      </motion.div>}</AnimatePresence>
     </>
   );
 }

@@ -168,3 +168,42 @@
     color: #F8F9FA;
   }
 }
+
+@layer utilities {
+  .mars-bg-gradient {
+    background: radial-gradient(circle at 50% 0%, rgba(193, 68, 14, 0.15) 0%, rgba(231, 125, 17, 0.05) 35%, rgba(5, 5, 5, 0.95) 70%, #040202 100%);
+  }
+  
+  .mars-grid-pattern {
+    background-image: 
+      linear-gradient(to right, rgba(193, 68, 14, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(193, 68, 14, 0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .mars-dots-pattern {
+    background-image: radial-gradient(rgba(231, 125, 17, 0.15) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .mars-glow-text {
+    text-shadow: 0 0 25px rgba(193, 68, 14, 0.4), 0 0 50px rgba(231, 125, 17, 0.2);
+  }
+
+  .hud-teal-glow {
+    text-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+  }
+
+  .double-bezel {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.1), 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

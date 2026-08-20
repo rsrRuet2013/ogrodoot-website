@@ -4,53 +4,60 @@ import { motion } from "framer-motion";
 import { fadeUp, staggerContainer } from "@/lib/animations";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Users } from "lucide-react";
 
 const subTeams = [
   {
     id: "mechanical",
-    name: "Mechanical Design & Fabrication",
-    role: "Chassis, suspension & robotic arm engineering",
+    code: "DIV-01",
+    name: "Mechanical & Fabrication",
+    role: "Chassis, rocker-bogie suspension & 6-DOF robotic arm",
     image: "/photots/mechanical_team.JPG",
   },
   {
     id: "electrical",
-    name: "Electrical",
-    role: "Power distribution, custom PCBs & circuitry",
+    code: "DIV-02",
+    name: "Power & Avionics",
+    role: "Power distribution, custom BMS PCBs & high-power motor drivers",
     image: "/photots/electrical_team.JPG",
   },
   {
     id: "software",
-    name: "Software & Autonomous",
-    role: "Navigation, computer vision & rover telemetry",
-    image: "/photots/softwate_aitonomous_team.JPG", // Using exact typo from public folder
+    code: "DIV-03",
+    name: "Software & AI Autonomy",
+    role: "ROS2 navigation, stereo VSLAM, path planning & telemetry HUD",
+    image: "/photots/softwate_aitonomous_team.JPG",
   },
   {
     id: "science",
-    name: "Science",
-    role: "Soil sample analysis & astrobiology protocols",
+    code: "DIV-04",
+    name: "Astrobiology & Science",
+    role: "Onboard soil spectrometry, Raman sensor analysis & bio-assays",
     image: "/photots/science_team.JPG",
   },
   {
     id: "communication",
-    name: "Communication",
-    role: "Antenna design & long-range data transmission",
-    // We don't have a comms photo yet, using leads as placeholder
+    code: "DIV-05",
+    name: "Deep Space Comms",
+    role: "9km UHF/5.8GHz transmission, antenna tracking & mesh nodes",
     image: "/photots/leads_only.JPG", 
   },
   {
     id: "media",
-    name: "Media & Logistics",
-    role: "Sponsorships, PR & mission operations",
-    // Placeholder using cover photo
+    code: "DIV-06",
+    name: "Mission Ops & Media",
+    role: "Sponsorship management, public outreach & campaign logistics",
     image: "/photots/Team_Ogrodoot_Cover.png",
   },
 ];
 
 export function SubTeamsGrid() {
   return (
-    <section className="bg-[#02050A] py-24 md:py-32 relative border-b border-white/5">
-      <div className="container mx-auto px-4 md:px-8">
+    <section className="py-28 md:py-36 relative border-b border-white/10 overflow-hidden z-10">
+      {/* Ambient background glow */}
+      <div className="absolute top-1/2 right-0 w-[500px] h-[500px] bg-mars-orange/10 rounded-full blur-[160px] pointer-events-none" />
+
+      <div className="container mx-auto px-6 md:px-12 lg:px-20 max-w-7xl relative z-10">
         
         {/* Section Header */}
         <motion.div
@@ -61,25 +68,27 @@ export function SubTeamsGrid() {
           className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16"
         >
           <div>
-            <div className="flex items-center gap-3 mb-4">
-               <span className="w-8 h-px bg-[var(--color-mars-orange)]" />
-               <span className="font-jetbrains-mono text-[var(--color-mars-orange)] text-xs tracking-[0.3em] uppercase">Departments</span>
+            <div className="inline-flex items-center gap-2 border border-mars-orange/30 rounded-full px-3.5 py-1 text-[11px] font-jetbrains-mono text-mars-orange tracking-[0.25em] uppercase bg-mars-red/10 backdrop-blur-md mb-4">
+              <Users size={12} className="text-mars-orange" />
+              Specialized Divisions
             </div>
-            <h2 className="font-orbitron font-bold text-4xl sm:text-5xl lg:text-6xl text-star-white">THE CREW</h2>
+            <h2 className="font-orbitron font-black text-4xl sm:text-5xl lg:text-6xl text-star-white mars-glow-text">
+              ENGINEERING ROSTER
+            </h2>
           </div>
           
           <Link 
             href="/team" 
-            className="group flex items-center gap-2 font-jetbrains-mono text-xs tracking-widest text-[#6C7A89] hover:text-white transition-colors"
+            className="group flex items-center gap-3 font-jetbrains-mono text-xs tracking-widest text-star-white/70 hover:text-star-white transition-colors"
           >
-            VIEW FULL ROSTER
-            <div className="w-6 h-6 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all">
-              <ArrowUpRight size={12} />
+            <span>VIEW FULL CREW</span>
+            <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all">
+              <ArrowUpRight size={14} />
             </div>
           </Link>
         </motion.div>
 
-        {/* 3x2 Grid */}
+        {/* 3x2 Bento Grid */}
         <motion.div 
           variants={staggerContainer}
           initial="hidden"
@@ -90,39 +99,45 @@ export function SubTeamsGrid() {
           {subTeams.map((team) => (
             <motion.div key={team.id} variants={fadeUp}>
               <Link href={`/team#${team.id}`} className="block h-full outline-none">
-                <div className="group relative h-[320px] rounded-[2rem] overflow-hidden bg-white/5 border border-white/10 hover:border-white/30 transition-colors pointer-events-auto">
+                <div className="group relative h-[340px] p-1.5 rounded-[2rem] bg-white/[0.03] border border-white/10 hover:border-mars-orange/60 transition-all duration-500 double-bezel overflow-hidden">
                   
-                  {/* Background Image */}
-                  <div className="absolute inset-0">
-                    <Image
-                      src={team.image}
-                      alt={team.name}
-                      fill
-                      className="object-cover transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105 group-hover:filter group-hover:brightness-110 filter brightness-[0.6] grayscale-[20%]"
-                    />
-                  </div>
-                  
-                  {/* Overlay Gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#02050A] via-[#02050A]/40 to-transparent opacity-90 group-hover:opacity-60 transition-opacity duration-500" />
+                  <div className="relative h-full w-full rounded-[calc(2rem-0.375rem)] overflow-hidden">
+                    {/* Background Image */}
+                    <div className="absolute inset-0">
+                      <Image
+                        src={team.image}
+                        alt={team.name}
+                        fill
+                        className="object-cover transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-110 filter brightness-[0.55] contrast-[1.1] grayscale-[15%] group-hover:grayscale-0 group-hover:brightness-[0.75]"
+                      />
+                    </div>
+                    
+                    {/* Overlay Gradient with Mars Rust */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-95 group-hover:opacity-75 transition-opacity duration-500" />
 
-                  {/* Red highlight bottom border */}
-                  <div className="absolute bottom-0 left-0 w-full h-1 bg-[var(--color-mars-red)] translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] z-20" />
-
-                  {/* Content */}
-                  <div className="absolute inset-0 p-8 flex flex-col justify-end z-10">
-                    <h3 className="font-exo2 text-2xl font-bold text-white mb-2 group-hover:-translate-y-2 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">
-                      {team.name}
-                    </h3>
-                    <div className="overflow-hidden">
-                      <p className="font-space-grotesk text-sm text-[var(--color-hud-teal)] translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100 ease-[cubic-bezier(0.32,0.72,0,1)]">
-                        {team.role}
-                      </p>
+                    {/* Top Division Code Tag */}
+                    <div className="absolute top-5 left-5 z-10">
+                      <span className="font-jetbrains-mono text-[10px] uppercase tracking-[0.25em] px-3 py-1 rounded-full bg-black/60 border border-white/10 text-hud-teal backdrop-blur-md">
+                        {team.code}
+                      </span>
                     </div>
 
-                    {/* HUD Bracket Decor */}
-                    <div className="absolute top-6 right-6 w-3 h-3 border-t border-r border-white/30 group-hover:border-mars-red transition-colors" />
-                    <div className="absolute bottom-8 right-8 text-white/20 group-hover:text-white transition-colors">
-                      <ArrowUpRight size={20} className="-translate-x-4 translate-y-4 opacity-0 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500" />
+                    {/* Arrow Indicator Top Right */}
+                    <div className="absolute top-5 right-5 z-10 w-8 h-8 rounded-full bg-black/50 border border-white/10 flex items-center justify-center text-white/50 group-hover:text-black group-hover:bg-mars-orange group-hover:border-mars-orange transition-all duration-300 transform group-hover:rotate-45">
+                      <ArrowUpRight size={14} />
+                    </div>
+
+                    {/* Bottom Red Mars Accent Line */}
+                    <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-mars-red to-mars-orange translate-y-full group-hover:translate-y-0 transition-transform duration-500 z-20" />
+
+                    {/* Content Block */}
+                    <div className="absolute inset-0 p-6 flex flex-col justify-end z-10">
+                      <h3 className="font-exo2 text-2xl font-bold text-star-white mb-2 leading-tight group-hover:text-mars-orange transition-colors">
+                        {team.name}
+                      </h3>
+                      <p className="font-space-grotesk text-xs text-white/75 line-clamp-2 leading-relaxed">
+                        {team.role}
+                      </p>
                     </div>
                   </div>
 

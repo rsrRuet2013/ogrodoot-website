@@ -1,50 +1,37 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { heroStagger, fadeUp } from "@/lib/animations";
+import { heroStagger } from "@/lib/animations";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
+import { ArrowUpRight, ChevronDown } from "lucide-react";
 
 export function HeroContent() {
   const titleText = "TEAM OGRODOOT";
 
   return (
-    <div className="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] pt-20 pb-10 px-4 wrapper pointer-events-none">
-      {/* Container for content structure */}
-      <div className="max-w-[1280px] w-full mx-auto flex flex-col items-center text-center gap-8 md:gap-12 mt-auto mb-auto pointer-events-auto">
+    <div className="relative z-10 flex flex-col items-center justify-start min-h-[100dvh] pt-32 sm:pt-40 md:pt-44 pb-16 px-4 sm:px-6 lg:px-8 pointer-events-none text-center">
+      
+      {/* Upper Hero Block - Positioned higher to keep the rover visible */}
+      <div className="max-w-5xl w-full mx-auto flex flex-col items-center justify-start gap-4 sm:gap-6 pointer-events-auto">
         
-        {/* Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          className="bg-black/40 backdrop-blur-sm border border-hud-teal/30 text-hud-teal px-4 py-1.5 rounded-full font-jetbrains-mono text-xs tracking-[0.2em] relative overflow-hidden"
-        >
-          <span className="relative z-10 flex items-center gap-2">
-            [RUET ROVER TEAM · EST. 2017]
-            <span className="w-1.5 h-3 bg-hud-teal animate-blink-cursor inline-block" />
-          </span>
-        </motion.div>
-
-        {/* Headline block */}
-        <div className="flex flex-col items-center gap-2">
-          {/* Letter by letter stagger for Title */}
+        {/* Main Title - Single Line & Scaled Responsively */}
+        <div className="flex flex-col items-center gap-2 sm:gap-3 w-full">
           <motion.h1
             variants={heroStagger}
             initial="hidden"
             animate="visible"
-            className="font-orbitron font-extrabold text-5xl sm:text-7xl md:text-[6rem] lg:text-[7rem] tracking-tight text-star-white m-0 leading-none drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+            className="font-orbitron font-black text-2xl min-[380px]:text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl tracking-wider text-star-white m-0 leading-tight whitespace-nowrap select-none drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]"
           >
             {titleText.split("").map((char, index) => (
               <motion.span
                 key={index}
                 variants={{
-                  hidden: { opacity: 0, y: 50 },
+                  hidden: { opacity: 0, y: 30 },
                   visible: { 
                     opacity: 1, 
                     y: 0,
-                    transition: { type: "spring", stiffness: 100, damping: 15 }
+                    transition: { type: "spring", stiffness: 120, damping: 14 }
                   }
                 }}
                 className="inline-block"
@@ -54,81 +41,73 @@ export function HeroContent() {
             ))}
           </motion.h1>
 
+          {/* Subtitle */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1 }}
-            className="flex flex-col gap-4 mt-4"
+            transition={{ duration: 0.7, delay: 0.4 }}
+            className="flex flex-col items-center gap-1 max-w-2xl mx-auto px-2"
           >
-            <h2 className="font-exo2 text-xl sm:text-2xl text-muted-foreground font-medium">
-              Rajshahi University of Engineering &amp; Technology
+            <h2 className=" text-xs min-[380px]:text-sm sm:text-lg md:text-xl lg:text-2xl text-white font-semibold tracking-wide drop-shadow-[0_2px_15px_rgba(0,0,0,0.9)]">
+              RUET ROVER TEAM
             </h2>
-            <p className="font-space-grotesk text-lg sm:text-xl text-star-white italic max-w-2xl mx-auto">
-              "Designing the Future of Mars Exploration — from Bangladesh to the Universe"
-            </p>
           </motion.div>
         </div>
 
-        {/* CTAs */}
+        {/* Action Buttons */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.2 }}
-          className="flex flex-col sm:flex-row items-center gap-4 mt-4 w-full justify-center"
+          transition={{ duration: 0.7, delay: 0.8 }}
+          className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mt-2 sm:mt-4 w-full justify-center"
         >
+          {/* Primary Action Button */}
           <Button
             asChild
             size="lg"
-            className="rounded-full bg-mars-red hover:bg-mars-orange text-white text-sm font-bold tracking-widest px-8 py-6 w-full sm:w-auto overflow-hidden group shadow-[0_0_15px_rgba(193,68,14,0.4)]"
+            className="group relative rounded-full bg-gradient-to-r from-mars-red to-mars-orange hover:from-mars-orange hover:to-mars-red text-white text-xs sm:text-sm font-bold tracking-widest uppercase pl-6 sm:pl-8 pr-3 sm:pr-4 py-5 sm:py-6 shadow-[0_0_25px_rgba(193,68,14,0.4)] hover:shadow-[0_0_35px_rgba(231,125,17,0.6)] transition-all duration-300 border border-white/20 active:scale-[0.98]"
             data-cta="true"
           >
-            <Link href="/rover">
-              [ EXPLORE THE ROVER ]
-              <span className="absolute inset-0 bg-white/20 -translate-x-[150%] skew-x-[-30deg] group-hover:translate-x-[150%] transition-transform duration-700 pointer-events-none" />
+            <Link href="/rover" className="flex items-center gap-2 sm:gap-3">
+              <span>EXPLORE THE ROVER</span>
+              <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-black/20 group-hover:bg-white group-hover:text-black flex items-center justify-center transition-all duration-300 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                <ArrowUpRight size={15} />
+              </span>
             </Link>
           </Button>
 
+          {/* Secondary Action Button */}
           <Button
             asChild
             size="lg"
             variant="outline"
-            className="rounded-full border-2 border-white/20 hover:border-white/50 bg-black/20 hover:bg-white/5 backdrop-blur-sm text-white text-sm font-bold tracking-widest px-8 py-6 w-full sm:w-auto group"
+            className="group rounded-full border border-white/20 hover:border-white/50 bg-black/40 hover:bg-white/10 backdrop-blur-md text-star-white text-xs sm:text-sm font-semibold tracking-widest uppercase px-6 sm:px-8 py-5 sm:py-6 transition-all duration-300 active:scale-[0.98]"
             data-cta="true"
           >
             <Link href="/sponsor">
-              [ BECOME A SPONSOR ]
+              BECOME A SPONSOR
             </Link>
           </Button>
         </motion.div>
       </div>
 
-      {/* Scroll Indicator */}
+      {/* Bottom Scroll Indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-auto"
+        transition={{ delay: 1.2, duration: 1 }}
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-auto"
       >
-        <span className="font-jetbrains-mono text-[10px] tracking-widest text-hud-teal uppercase">Scroll</span>
+        <span className="font-jetbrains-mono text-[10px] tracking-widest text-white/50 uppercase">
+          SCROLL
+        </span>
         <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+          animate={{ y: [0, 5, 0] }}
+          transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
         >
-          <ChevronDown className="text-hud-teal opacity-70" size={16} />
+          <ChevronDown className="text-white/60" size={18} />
         </motion.div>
       </motion.div>
-
-      {/* HUD Corner Decor */}
-      <div className="absolute inset-8 border border-white/5 pointer-events-none rounded-[2rem] max-md:hidden">
-         {/* Top Left */}
-         <div className="absolute top-[-1px] left-[-1px] w-8 h-8 border-t-2 border-l-2 border-mars-red" />
-         {/* Top Right */}
-         <div className="absolute top-[-1px] right-[-1px] w-8 h-8 border-t-2 border-r-2 border-mars-red" />
-         {/* Bottom Left */}
-         <div className="absolute bottom-[-1px] left-[-1px] w-8 h-8 border-b-2 border-l-2 border-mars-red" />
-         {/* Bottom Right */}
-         <div className="absolute bottom-[-1px] right-[-1px] w-8 h-8 border-b-2 border-r-2 border-mars-red" />
-      </div>
 
     </div>
   );
