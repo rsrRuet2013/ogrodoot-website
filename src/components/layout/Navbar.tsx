@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, LogOut, Menu, ShieldCheck, UserRound, X, Sparkles } from "lucide-react";
+import { ChevronDown, LogOut, Menu, ShieldCheck, UserRound, UserCog, X, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type NavItem =
@@ -44,6 +44,8 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
 
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
   const isCurrentPath = (href: string) =>
     href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 
@@ -51,6 +53,27 @@ export function Navbar() {
     const onScroll = () => setIsScrolled(window.scrollY > 30);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Handle click outside for User Dropdown
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setUserMenuOpen(false);
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   useEffect(() => {
@@ -158,7 +181,7 @@ export function Navbar() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 8, scale: 0.96 }}
                         transition={{ duration: 0.18, ease: "easeOut" }}
-                        className="absolute left-1/2 top-full mt-2 w-64 -translate-x-1/2 overflow-hidden rounded-2xl border border-white/10 bg-[#0a0d14]/95 p-2 shadow-2xl backdrop-blur-2xl"
+                        className="absolute left-1/2 top-full mt-2 w-64 -translate-x-1/2 overflow-hidden rounded-2xl border border-white/10 bg-[#0a0d14]/98 p-2 shadow-2xl backdrop-blur-2xl before:absolute before:-top-3 before:left-0 before:right-0 before:h-3 z-50"
                       >
                         <div className="space-y-1">
                           {item.links.map((link) => (
@@ -207,14 +230,14 @@ export function Navbar() {
           {/* Desktop Right Actions (Auth) */}
           <div className="hidden md:flex items-center gap-3">
             {user ? (
-              <div className="relative" onMouseLeave={() => setUserMenuOpen(false)}>
+              <div className="relative" ref={userMenuRef}>
                 <button
                   type="button"
                   aria-haspopup="menu"
                   aria-expanded={userMenuOpen}
                   onClick={() => setUserMenuOpen((open) => !open)}
                   className={cn(
-                    "flex items-center gap-2.5 rounded-full border py-1.5 pl-1.5 pr-4 transition-all duration-200",
+                    "flex items-center gap-2.5 rounded-full border py-1.5 pl-1.5 pr-4 transition-all duration-200 cursor-pointer",
                     userMenuOpen
                       ? "border-mars-orange/70 bg-mars-orange/10"
                       : "border-white/10 bg-[#0b0e17]/70 hover:border-mars-orange/50"
@@ -245,9 +268,19 @@ export function Navbar() {
                       initial={{ opacity: 0, y: 8, scale: 0.96 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                      transition={{ duration: 0.18 }}
-                      className="absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-2xl border border-white/10 bg-[#0a0d14]/95 p-1.5 shadow-2xl backdrop-blur-2xl"
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-2xl border border-white/10 bg-[#0a0d14]/98 p-1.5 shadow-2xl backdrop-blur-2xl before:absolute before:-top-3 before:left-0 before:right-0 before:h-3 z-50"
                     >
+                      <Link
+                        href="/profile"
+                        role="menuitem"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-semibold tracking-wide text-white/90 transition-colors hover:bg-white/[0.08] hover:text-mars-orange"
+                      >
+                        <UserCog size={15} className="text-mars-orange" />
+                        My Profile
+                      </Link>
+
                       {user.role === "admin" && (
                         <Link
                           href="/admin"
@@ -393,19 +426,29 @@ export function Navbar() {
             <div className="mt-8 flex flex-col gap-3 w-full max-w-sm mx-auto border-t border-white/10 pt-6">
               {user ? (
                 <>
+                  <Link
+                    href="/profile"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-white hover:bg-white/10"
+                  >
+                    <UserCog size={15} className="text-mars-orange" />
+                    <span>My Profile</span>
+                  </Link>
+
                   {user.role === "admin" && (
                     <Link
                       href="/admin"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="rounded-xl border border-mars-orange/60 bg-mars-orange/10 px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-mars-orange"
+                      className="flex items-center justify-center gap-2 rounded-xl border border-mars-orange/60 bg-mars-orange/10 px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-mars-orange"
                     >
-                      Admin Console
+                      <ShieldCheck size={15} />
+                      <span>Admin Console</span>
                     </Link>
                   )}
                   <button
                     type="button"
                     onClick={signOut}
-                    className="rounded-xl border border-red-500/40 bg-red-950/20 px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-red-300"
+                    className="rounded-xl border border-red-500/40 bg-red-950/20 px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-red-300 cursor-pointer"
                   >
                     Sign out
                   </button>
