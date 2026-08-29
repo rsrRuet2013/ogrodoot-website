@@ -49,9 +49,10 @@ export default function ContactPage() {
                   <Clock size={18} />
                 </div>
                 <div>
-                  <p className="font-bold text-white text-xs uppercase tracking-wider">Lab Operation Hours</p>
+                  <p className="font-bold text-white text-xs uppercase tracking-wider">Lab Operation</p>
                   <p className="text-xs text-white/70 mt-0.5">
-                    Sunday – Thursday: 09:00 AM – 08:00 PM (GMT+6)
+    
+                    Fitting Shop,Depertment of Mechanical Engineering, RUET, Rajshahi-6204, Bangladesh
                   </p>
                 </div>
               </div>
