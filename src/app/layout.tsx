@@ -1,5 +1,4 @@
-import type { Metadata } from "next";
-import { Orbitron, Exo_2, Space_Grotesk, JetBrains_Mono, Rajdhani } from "next/font/google";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,35 +6,17 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CustomCursor } from "@/components/layout/CustomCursor";
 
-const orbitron = Orbitron({ 
-  subsets: ['latin'], 
-  variable: '--font-orbitron' 
-});
-
-const exo2 = Exo_2({ 
-  subsets: ['latin'], 
-  variable: '--font-exo2' 
-});
-
-const spaceGrotesk = Space_Grotesk({ 
-  subsets: ['latin'], 
-  variable: '--font-space-grotesk' 
-});
-
-const jetbrainsMono = JetBrains_Mono({ 
-  subsets: ['latin'], 
-  variable: '--font-jetbrains-mono' 
-});
-
-const rajdhani = Rajdhani({ 
-  subsets: ['latin'], 
-  variable: '--font-rajdhani',
-  weight: ['400', '500', '600', '700']
-});
-
 export const metadata: Metadata = {
   title: "Team Ogrodoot | RUET Mars Rover Team",
-  description: "Designing the future of Mars exploration from Bangladesh to the Universe. Official website of Team Ogrodoot, Rajshahi University of Engineering & Technology.",
+  description: "Official website of Team Ogrodoot — The premier Mars Rover Team of Rajshahi University of Engineering & Technology (RUET). Designing the future of planetary exploration.",
+  keywords: ["Team Ogrodoot", "RUET Rover Team", "RUET Mars Rover", "University Rover Challenge", "URC", "Robotics", "Engineering", "Bangladesh"],
+  authors: [{ name: "Team Ogrodoot RUET" }],
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -44,21 +25,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={cn(
-        "h-full antialiased dark",
-        orbitron.variable,
-        exo2.variable,
-        spaceGrotesk.variable,
-        jetbrainsMono.variable,
-        rajdhani.variable
-      )}
-    >
-      <body className="min-h-full flex flex-col font-sans">
+    <html lang="en" className="h-full antialiased dark scroll-smooth">
+      <body className="min-h-full flex flex-col font-sans bg-[#050505] text-star-white selection:bg-mars-red selection:text-white antialiased overflow-x-hidden">
         <TooltipProvider>
           <Navbar />
-          <main className="flex-1 flex flex-col w-full">{children}</main>
+          <main className="flex-1 flex flex-col w-full relative">{children}</main>
           <Footer />
           <CustomCursor />
         </TooltipProvider>

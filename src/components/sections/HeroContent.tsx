@@ -2,36 +2,33 @@
 
 import { motion } from "framer-motion";
 import { heroStagger } from "@/lib/animations";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { ArrowUpRight, ChevronDown } from "lucide-react";
 
 export function HeroContent() {
   const titleText = "TEAM OGRODOOT";
 
   return (
-    <div className="relative z-10 flex flex-col items-center justify-start min-h-[100dvh] pt-32 sm:pt-40 md:pt-44 pb-16 px-4 sm:px-6 lg:px-8 pointer-events-none text-center">
+    <div className="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] w-full pt-16 pb-24 sm:pb-32 px-4 sm:px-6 lg:px-8 pointer-events-none text-center select-none -translate-y-8 sm:-translate-y-12 md:-translate-y-16">
       
-      {/* Upper Hero Block - Positioned higher to keep the rover visible */}
-      <div className="max-w-5xl w-full mx-auto flex flex-col items-center justify-start gap-4 sm:gap-6 pointer-events-auto">
+      {/* Central Focal Content Elevated */}
+      <div className="max-w-6xl w-full mx-auto flex flex-col items-center justify-center gap-3 sm:gap-4 pointer-events-auto">
         
-        {/* Main Title - Single Line & Scaled Responsively */}
-        <div className="flex flex-col items-center gap-2 sm:gap-3 w-full">
+        {/* Main Title - Responsive & Single-Line Guaranteed */}
+        <div className="flex flex-col items-center justify-center gap-2 sm:gap-3 w-full">
           <motion.h1
             variants={heroStagger}
             initial="hidden"
             animate="visible"
-            className="font-orbitron font-black text-2xl min-[380px]:text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl tracking-wider text-star-white m-0 leading-tight whitespace-nowrap select-none drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]"
+            className="font-heading font-black text-[7.5vw] min-[400px]:text-[8vw] sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/80 m-0 leading-none drop-shadow-[0_10px_50px_rgba(0,0,0,0.95)] whitespace-nowrap select-none"
           >
             {titleText.split("").map((char, index) => (
               <motion.span
                 key={index}
                 variants={{
-                  hidden: { opacity: 0, y: 30 },
+                  hidden: { opacity: 0, y: 25 },
                   visible: { 
                     opacity: 1, 
                     y: 0,
-                    transition: { type: "spring", stiffness: 120, damping: 14 }
+                    transition: { type: "spring", stiffness: 130, damping: 15 }
                   }
                 }}
                 className="inline-block"
@@ -41,71 +38,48 @@ export function HeroContent() {
             ))}
           </motion.h1>
 
-          {/* Subtitle */}
+          {/* Subtitle - RUET ROVER TEAM - Single Line Guaranteed */}
           <motion.div
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.4 }}
-            className="flex flex-col items-center gap-1 max-w-2xl mx-auto px-2"
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="flex items-center justify-center gap-2 sm:gap-4 mt-1 sm:mt-2 w-full max-w-2xl px-1"
           >
-            <h2 className=" text-xs min-[380px]:text-sm sm:text-lg md:text-xl lg:text-2xl text-white font-semibold tracking-wide drop-shadow-[0_2px_15px_rgba(0,0,0,0.9)]">
+            <div className="h-px w-4 min-[360px]:w-8 sm:w-16 bg-gradient-to-r from-transparent via-mars-orange/60 to-mars-orange shrink-0" />
+            <h2 className="font-heading text-[3.3vw] min-[360px]:text-[3.5vw] sm:text-lg md:text-xl lg:text-2xl text-mars-orange font-extrabold tracking-[0.14em] min-[360px]:tracking-[0.2em] sm:tracking-[0.28em] uppercase drop-shadow-[0_2px_20px_rgba(231,125,17,0.6)] whitespace-nowrap">
               RUET ROVER TEAM
             </h2>
+            <div className="h-px w-4 min-[360px]:w-8 sm:w-16 bg-gradient-to-l from-transparent via-mars-orange/60 to-mars-orange shrink-0" />
           </motion.div>
         </div>
 
-        {/* Action Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
+        {/* Tagline / Mission Statement */}
+        <motion.p
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.8 }}
-          className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mt-2 sm:mt-4 w-full justify-center"
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="font-sans text-xs sm:text-sm md:text-base text-white/75 max-w-xl mx-auto font-normal leading-relaxed tracking-wide px-4 mt-1"
         >
-          {/* Primary Action Button */}
-          <Button
-            asChild
-            size="lg"
-            className="group relative rounded-full bg-gradient-to-r from-mars-red to-mars-orange hover:from-mars-orange hover:to-mars-red text-white text-xs sm:text-sm font-bold tracking-widest uppercase pl-6 sm:pl-8 pr-3 sm:pr-4 py-5 sm:py-6 shadow-[0_0_25px_rgba(193,68,14,0.4)] hover:shadow-[0_0_35px_rgba(231,125,17,0.6)] transition-all duration-300 border border-white/20 active:scale-[0.98]"
-            data-cta="true"
-          >
-            <Link href="/rover" className="flex items-center gap-2 sm:gap-3">
-              <span>EXPLORE THE ROVER</span>
-              <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-black/20 group-hover:bg-white group-hover:text-black flex items-center justify-center transition-all duration-300 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                <ArrowUpRight size={15} />
-              </span>
-            </Link>
-          </Button>
-
-          {/* Secondary Action Button */}
-          <Button
-            asChild
-            size="lg"
-            variant="outline"
-            className="group rounded-full border border-white/20 hover:border-white/50 bg-black/40 hover:bg-white/10 backdrop-blur-md text-star-white text-xs sm:text-sm font-semibold tracking-widest uppercase px-6 sm:px-8 py-5 sm:py-6 transition-all duration-300 active:scale-[0.98]"
-            data-cta="true"
-          >
-            <Link href="/sponsor">
-              SPONSOR US
-            </Link>
-          </Button>
-        </motion.div>
+          Designing next-generation planetary exploration rovers for international aerospace championships.
+        </motion.p>
       </div>
 
-      {/* Bottom Scroll Indicator */}
+      {/* Bottom Scroll Cue */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.2, duration: 1 }}
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-auto"
+        transition={{ delay: 0.8, duration: 1 }}
+        className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-auto translate-y-8 sm:translate-y-12 md:translate-y-16"
       >
-        <span className="font-jetbrains-mono text-[10px] tracking-widest text-white/50 uppercase">
-          SCROLL
+        <span className="font-mono text-[9px] sm:text-[10px] tracking-[0.3em] text-white/40 uppercase">
+          EXPLORE
         </span>
         <motion.div
-          animate={{ y: [0, 5, 0] }}
-          transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+          animate={{ y: [0, 6, 0] }}
+          transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+          className="w-5 h-8 rounded-full border border-white/20 flex items-start justify-center p-1"
         >
-          <ChevronDown className="text-white/60" size={18} />
+          <div className="w-1 h-2 rounded-full bg-mars-orange" />
         </motion.div>
       </motion.div>
 

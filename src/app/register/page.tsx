@@ -1,2 +1,20 @@
 import { RegisterForm } from "@/components/auth/AuthForms";
-export default function RegisterPage() { return <main className="mars-bg-gradient min-h-screen px-5 pb-20 pt-32"><section className="mx-auto max-w-3xl border border-slate-700/80 bg-[#0a1128]/80 p-6 shadow-2xl backdrop-blur md:p-10"><p className="font-mono text-xs uppercase tracking-[0.28em] text-cyan-300">ROSB // onboarding</p><h1 className="mt-4 font-orbitron text-3xl font-bold text-white">Join the mission</h1><p className="mb-8 mt-3 text-sm leading-6 text-slate-400">Register your details for a team administrator to review. Registration does not sign you in automatically.</p><RegisterForm /></section></main>; }
+
+export default function RegisterPage() {
+  return (
+    <main className="mars-bg-gradient min-h-screen px-4 sm:px-6 pb-20 pt-32 flex items-center justify-center">
+      <section className="w-full max-w-3xl rounded-2xl border border-white/10 bg-[#0b0e14]/90 p-6 sm:p-10 shadow-2xl backdrop-blur-xl">
+        <span className="font-mono text-xs font-semibold uppercase tracking-[0.25em] text-mars-orange">
+          JOIN THE TEAM
+        </span>
+        <h1 className="mt-2 font-heading text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+          Member Registration
+        </h1>
+        <p className="mb-8 mt-2 text-sm leading-relaxed text-slate-300">
+          Register your details for team administrator approval. Registration requires verification prior to account activation.
+        </p>
+        <RegisterForm />
+      </section>
+    </main>
+  );
+}
