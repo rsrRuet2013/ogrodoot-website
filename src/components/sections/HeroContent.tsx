@@ -85,7 +85,7 @@ export function HeroContent() {
             data-cta="true"
           >
             <Link href="/sponsor">
-              BECOME A SPONSOR
+              SPONSOR US
             </Link>
           </Button>
         </motion.div>
