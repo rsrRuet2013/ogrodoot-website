@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/db";
 import { deleteImageKitFile } from "@/lib/imagekit";
 import { isSubTeam } from "@/lib/subteams";
+import { isMemberType } from "@/lib/member-options";
 import { User } from "@/models/User";
 
 async function admin() { const session = await getSession(); return session?.role === "admin" ? session : null; }
@@ -16,6 +17,12 @@ export async function PATCH(request: Request, context: RouteContext<"/api/admin/
   try {
     const body = await request.json() as Record<string, unknown>;
     const update: Record<string, string> = {};
+    if (body.memberType !== undefined) {
+      if (!isMemberType(String(body.memberType))) {
+        return NextResponse.json({ error: "Invalid member type." }, { status: 400 });
+      }
+      update.memberType = String(body.memberType);
+    }
     if (body.status !== undefined) { 
       if (!["pending", "approved", "rejected"].includes(String(body.status))) {
         return NextResponse.json({ error: "Invalid status." }, { status: 400 }); 

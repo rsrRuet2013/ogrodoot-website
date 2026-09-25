@@ -85,8 +85,8 @@ export function ProfileEditor() {
       return;
     }
 
-    if (file.size > 2 * 1024 * 1024) {
-      setNotice({ type: "error", text: "Image must be 2MB or smaller." });
+    if (file.size > 10 * 1024 * 1024) {
+      setNotice({ type: "error", text: "Image must be 10MB or smaller." });
       return;
     }
 

@@ -52,16 +52,6 @@ export function HeroContent() {
             <div className="h-px w-4 min-[360px]:w-8 sm:w-16 bg-gradient-to-l from-transparent via-mars-orange/60 to-mars-orange shrink-0" />
           </motion.div>
         </div>
-
-        {/* Tagline / Mission Statement */}
-        <motion.p
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          className="font-sans text-xs sm:text-sm md:text-base text-white/75 max-w-xl mx-auto font-normal leading-relaxed tracking-wide px-4 mt-1"
-        >
-          Designing next-generation planetary exploration rovers for international aerospace championships.
-        </motion.p>
       </div>
 
       {/* Bottom Scroll Cue */}

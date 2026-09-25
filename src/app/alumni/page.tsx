@@ -1,4 +1,5 @@
 import { SectionPage } from "@/components/layout/SectionPage";
+import { AlumniDirectory } from "@/components/alumni/AlumniDirectory";
 import Link from "next/link";
 import { GraduationCap, Briefcase, Award, ArrowUpRight, UserCheck } from "lucide-react";
 
@@ -30,7 +31,7 @@ export default function AlumniPage() {
       title="Alumni Network"
       description="Honoring the engineers, team leads, and researchers whose mentorship and technical foundations continue to propel Team Ogrodoot forward."
     >
-      <div className="space-y-12">
+      <div className="space-y-16">
         {/* Alumni Mentorship Network Banner */}
         <div className="rounded-2xl border border-white/15 bg-gradient-to-r from-[#0d1017] via-black to-[#1c120c] p-8 sm:p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-xl">
           <div className="space-y-2">
@@ -54,6 +55,9 @@ export default function AlumniPage() {
             <span>Join Alumni Network</span>
           </Link>
         </div>
+
+        {/* Live Alumni Directory - Grouped by SubTeam, Sorted by Student ID */}
+        <AlumniDirectory />
 
         {/* Generational Eras */}
         <div>

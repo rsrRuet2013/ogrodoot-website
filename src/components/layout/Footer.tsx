@@ -48,7 +48,7 @@ export function Footer() {
                 <span className="font-heading text-xl font-black tracking-wider text-white group-hover:text-mars-orange transition-colors">
                   TEAM OGRODOOT
                 </span>
-                <span className="-mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-white/50">
+                <span className="-mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-mars-orange font-bold">
                   RUET MARS ROVER TEAM
                 </span>
               </div>
@@ -126,8 +126,11 @@ export function Footer() {
               <Link href="/rover" className="text-white/70 hover:text-white hover:translate-x-1 transition-all duration-200 w-fit">
                 Rover Showcase
               </Link>
-              <Link href="/about" className="text-white/70 hover:text-white hover:translate-x-1 transition-all duration-200 w-fit">
-                Our Story
+              <Link href="/competitions" className="text-white/70 hover:text-white hover:translate-x-1 transition-all duration-200 w-fit">
+                Competitions
+              </Link>
+              <Link href="/events" className="text-white/70 hover:text-white hover:translate-x-1 transition-all duration-200 w-fit">
+                Events
               </Link>
               <Link href="/achievements" className="text-white/70 hover:text-white hover:translate-x-1 transition-all duration-200 w-fit">
                 Achievements
@@ -138,8 +141,8 @@ export function Footer() {
               <Link href="/alumni" className="text-white/70 hover:text-white hover:translate-x-1 transition-all duration-200 w-fit">
                 Alumni Network
               </Link>
-              <Link href="/media" className="text-white/70 hover:text-white hover:translate-x-1 transition-all duration-200 w-fit">
-                Media & Press
+              <Link href="/about" className="text-white/70 hover:text-white hover:translate-x-1 transition-all duration-200 w-fit">
+                Our Story
               </Link>
             </nav>
           </div>

@@ -3,10 +3,7 @@ import { LoadingScreen } from "@/components/layout/LoadingScreen";
 import { MarsAmbientBackground } from "@/components/layout/MarsAmbientBackground";
 import { HeroContent } from "@/components/sections/HeroContent";
 import { RoverTeam } from "@/components/sections/roverteam";
-import { StatsCounter } from "@/components/sections/StatsCounter";
-import { RoverPreview } from "@/components/sections/RoverPreview";
-import { CompetitionsTimeline } from "@/components/sections/CompetitionsTimeline";
-import { SubTeamsGrid } from "@/components/sections/SubTeamsGrid";
+import { MediaMarquee } from "@/components/sections/MediaMarquee";
 import { SponsorshipCTA } from "@/components/sections/SponsorshipCTA";
 
 export default function Home() {
@@ -37,16 +34,12 @@ export default function Home() {
       {/* 1.2 Rover Team Showcase Section */}
       <RoverTeam />
 
-      {/* 1.3 Key Stats & Milestones */}
-      <StatsCounter />
+      {/* 1.3 Infinite Horizontal Media & Competitions Marquee */}
+      <MediaMarquee />
 
-      {/* 1.4 Rover Specifications Preview */}
-      <RoverPreview />
+     
 
-      {/* 1.5 Global Competitions Timeline */}
-      <CompetitionsTimeline />
-
-      {/* 1.7 Sponsorship & Partnership CTA */}
+      {/* 1.5 Sponsorship & Partnership CTA */}
       <SponsorshipCTA />
     </div>
   );

@@ -72,7 +72,12 @@
   --animate-scan-line: scan-line 3s linear infinite;
   --animate-orbit-spin: orbit-spin 20s linear infinite;
   --animate-blink-cursor: blink-cursor 1s steps(2, start) infinite;
+  --animate-marquee: marquee 35s linear infinite;
   
+  @keyframes marquee {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
+  }
   @keyframes pulse-glow {
     0%, 100% { opacity: 1; box-shadow: 0 0 15px rgba(193, 68, 14, 0.5); }
     50% { opacity: .7; box-shadow: 0 0 30px rgba(193, 68, 14, 0.8); }

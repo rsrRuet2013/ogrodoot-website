@@ -5,7 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, LogOut, Menu, ShieldCheck, UserRound, UserCog, X, Sparkles } from "lucide-react";
+import { 
+  ChevronDown, LogOut, Menu, ShieldCheck, UserRound, UserCog, X, Sparkles,
+  Home, Cpu, Trophy, Calendar, Award, Users, GraduationCap, Mail, ChevronRight
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type NavItem =
@@ -18,9 +21,9 @@ const navItems: NavItem[] = [
   {
     name: "About",
     links: [
-      { name: "Our Story", href: "/about", description: "The legacy and mission behind Team Ogrodoot" },
-      { name: "Achievements", href: "/achievements", description: "Global rankings and podium finishes" },
-      { name: "Media & Press", href: "/media", description: "News, press releases & publications" },
+      { name: "Competitions", href: "/competitions", description: "Global arenas: URC, ARC, ERC & IRDC" },
+      { name: "Events", href: "/events", description: "Upcoming workshops & field operations" },
+      { name: "Achievements", href: "/achievements", description: "Global rankings, awards & press coverage" },
     ],
   },
   {
@@ -31,6 +34,17 @@ const navItems: NavItem[] = [
     ],
   },
   { name: "Contact", href: "/contact" },
+];
+
+const mobileButtons = [
+  { name: "Home", href: "/", icon: Home, subtitle: "Main landing & mission overview" },
+  { name: "Rover Showcase", href: "/rover", icon: Cpu, subtitle: "Robotics specifications & subsystems" },
+  { name: "Competitions", href: "/competitions", icon: Trophy, subtitle: "Global arenas: URC, ARC, ERC" },
+  { name: "Events", href: "/events", icon: Calendar, subtitle: "Seminars, workshops & testing" },
+  { name: "Achievements", href: "/achievements", icon: Award, subtitle: "Global rankings & press coverage" },
+  { name: "Current Crew", href: "/team", icon: Users, subtitle: "Active student researchers" },
+  { name: "Alumni Network", href: "/alumni", icon: GraduationCap, subtitle: "Founders & past mentors" },
+  { name: "Contact", href: "/contact", icon: Mail, subtitle: "Collaborate & inquiries" },
 ];
 
 type SessionUser = { name: string; profilePicUrl: string; role: "member" | "lead" | "admin" };
@@ -46,8 +60,13 @@ export function Navbar() {
 
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  const isCurrentPath = (href: string) =>
-    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+  const isCurrentPath = (href: string) => {
+    if (href === "/") return pathname === "/";
+    if (pathname === href || pathname.startsWith(`${href}/`)) return true;
+    if ((href === "/competitions" || href === "/events") && (pathname === "/competitions" || pathname === "/events")) return true;
+    if ((href === "/achievements" || href === "/media-and-press") && (pathname === "/achievements" || pathname === "/media-and-press")) return true;
+    return false;
+  };
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 30);
@@ -91,6 +110,18 @@ export function Navbar() {
     };
   }, [pathname]);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
+
   async function signOut() {
     setUserMenuOpen(false);
     setIsMobileMenuOpen(false);
@@ -133,7 +164,7 @@ export function Navbar() {
               <span className="font-heading text-base sm:text-lg font-black tracking-wider text-white group-hover:text-mars-orange transition-colors">
                 OGRODOOT
               </span>
-              <span className="-mt-1 font-mono text-[9px] uppercase tracking-[0.25em] text-white/50 group-hover:text-white/80 transition-colors">
+              <span className="-mt-0.5 font-mono text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.25em] text-mars-orange transition-colors drop-shadow-[0_0_8px_rgba(231,125,17,0.35)]">
                 RUET ROVER TEAM
               </span>
             </div>
@@ -360,112 +391,195 @@ export function Navbar() {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[55] flex flex-col justify-between overflow-y-auto bg-[#06080d]/98 px-6 pt-28 pb-10 backdrop-blur-2xl md:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-[60] flex flex-col justify-between overflow-y-auto bg-[#05060a]/98 px-5 pt-6 pb-8 backdrop-blur-3xl md:hidden"
           >
-            <nav aria-label="Mobile navigation" className="flex flex-col items-center gap-6 text-center w-full max-w-sm mx-auto">
-              {user && (
-                <div className="flex flex-col items-center gap-2 pb-4 border-b border-white/10 w-full">
-                  <span className="relative h-16 w-16 overflow-hidden rounded-full border-2 border-mars-orange/60 bg-slate-800 shadow-[0_0_20px_rgba(231,125,17,0.3)]">
+            {/* Top Bar inside Overlay */}
+            <div className="flex items-center justify-between pb-4 border-b border-white/[0.08]">
+              <Link
+                href="/"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-2.5"
+              >
+                <div className="relative h-9 w-9 rounded-full p-[1px] bg-gradient-to-br from-mars-orange via-mars-red to-white/20">
+                  <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-[#07090e]">
+                    <Image
+                      src="/logo-white.png"
+                      alt="Team Ogrodoot"
+                      fill
+                      sizes="36px"
+                      className="object-contain p-1"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-heading text-sm font-black tracking-wider text-white">
+                    OGRODOOT
+                  </span>
+                  <span className="-mt-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-mars-orange">
+                    RUET ROVER TEAM
+                  </span>
+                </div>
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-10 h-10 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 flex items-center justify-center text-white transition-all active:scale-90 cursor-pointer"
+                aria-label="Close menu"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* User Profile Capsule (If Authenticated) */}
+            {user && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-4 p-3 rounded-2xl border border-white/10 bg-white/[0.03] flex items-center justify-between gap-3"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border-2 border-mars-orange/60 bg-slate-800">
                     {user.profilePicUrl ? (
                       <img src={user.profilePicUrl} alt="" className="h-full w-full object-cover" />
                     ) : (
-                      <UserRound size={28} className="absolute inset-0 m-auto text-slate-400" />
+                      <UserRound size={20} className="absolute inset-0 m-auto text-slate-400" />
                     )}
                   </span>
-                  <p className="text-sm font-bold text-white">{user.name}</p>
-                  <span className="font-mono text-[10px] uppercase tracking-widest text-mars-orange">
-                    {user.role}
-                  </span>
-                </div>
-              )}
-
-              {navItems.map((item) =>
-                hasDropdownLinks(item) ? (
-                  <div key={item.name} className="w-full space-y-2.5">
-                    <p className="font-mono text-[11px] font-bold uppercase tracking-[0.25em] text-mars-orange">
-                      {item.name}
-                    </p>
-                    <div className="flex flex-col gap-2">
-                      {item.links.map((link) => (
-                        <Link
-                          key={link.name}
-                          href={link.href}
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className={cn(
-                            "py-1 text-sm font-medium tracking-wide transition-colors",
-                            isCurrentPath(link.href)
-                              ? "text-mars-orange font-bold"
-                              : "text-white/80 hover:text-white"
-                          )}
-                        >
-                          {link.name}
-                        </Link>
-                      ))}
-                    </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-white truncate">{user.name}</p>
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-mars-orange font-bold">
+                      {user.role}
+                    </span>
                   </div>
-                ) : (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={cn(
-                      "text-base font-bold uppercase tracking-widest transition-colors",
-                      isCurrentPath(item.href) ? "text-mars-orange" : "text-white/90 hover:text-white"
-                    )}
-                  >
-                    {item.name}
-                  </Link>
-                )
-              )}
-            </nav>
-
-            <div className="mt-8 flex flex-col gap-3 w-full max-w-sm mx-auto border-t border-white/10 pt-6">
-              {user ? (
-                <>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
                   <Link
                     href="/profile"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-white hover:bg-white/10"
+                    className="p-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-white/80 hover:text-white transition"
+                    title="Profile"
                   >
-                    <UserCog size={15} className="text-mars-orange" />
-                    <span>My Profile</span>
+                    <UserCog size={15} />
                   </Link>
-
                   {user.role === "admin" && (
                     <Link
                       href="/admin"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center justify-center gap-2 rounded-xl border border-mars-orange/60 bg-mars-orange/10 px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-mars-orange"
+                      className="p-2 rounded-xl bg-mars-orange/15 hover:bg-mars-orange/25 text-mars-orange transition"
+                      title="Admin Console"
                     >
                       <ShieldCheck size={15} />
+                    </Link>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Modern Button-Form Navigation Grid */}
+            <nav aria-label="Mobile navigation" className="my-5 space-y-2">
+              <span className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-white/40 block px-1">
+                Navigation
+              </span>
+
+              <div className="space-y-2">
+                {mobileButtons.map((btn, index) => {
+                  const Icon = btn.icon;
+                  const active = isCurrentPath(btn.href);
+                  return (
+                    <motion.div
+                      key={btn.name}
+                      initial={{ opacity: 0, x: -16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.035, duration: 0.25, ease: "easeOut" }}
+                    >
+                      <Link
+                        href={btn.href}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={cn(
+                          "w-full rounded-2xl p-3 px-3.5 flex items-center justify-between transition-all duration-200 active:scale-[0.98]",
+                          active
+                            ? "bg-gradient-to-r from-mars-red/25 via-mars-orange/20 to-mars-orange/10 border border-mars-orange/50 text-white shadow-[0_0_20px_rgba(231,125,17,0.15)]"
+                            : "bg-white/[0.03] border border-white/[0.07] text-white/80 hover:bg-white/[0.07] hover:border-white/15 hover:text-white"
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={cn(
+                              "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors",
+                              active
+                                ? "bg-mars-orange text-black font-bold"
+                                : "bg-white/[0.06] text-mars-orange"
+                            )}
+                          >
+                            <Icon size={16} />
+                          </div>
+                          <div className="flex flex-col text-left">
+                            <span className="text-xs sm:text-sm font-bold tracking-wide leading-tight">
+                              {btn.name}
+                            </span>
+                            <span className="text-[10px] text-white/45 line-clamp-1 font-sans mt-0.5">
+                              {btn.subtitle}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="shrink-0 flex items-center gap-1.5">
+                          {active && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-mars-orange shadow-[0_0_8px_rgba(231,125,17,1)]" />
+                          )}
+                          <ChevronRight
+                            size={15}
+                            className={active ? "text-mars-orange" : "text-white/30"}
+                          />
+                        </div>
+                      </Link>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </nav>
+
+            {/* Bottom Auth Section in Button Form */}
+            <div className="pt-4 border-t border-white/[0.08] flex flex-col gap-2.5">
+              {user ? (
+                <div className="flex items-center gap-2">
+                  {user.role === "admin" && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex-1 py-3 px-4 rounded-xl border border-mars-orange/40 bg-mars-orange/10 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-mars-orange active:scale-[0.98] transition"
+                    >
+                      <ShieldCheck size={14} />
                       <span>Admin Console</span>
                     </Link>
                   )}
                   <button
                     type="button"
                     onClick={signOut}
-                    className="rounded-xl border border-red-500/40 bg-red-950/20 px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-red-300 cursor-pointer"
+                    className="flex-1 py-3 px-4 rounded-xl border border-red-500/30 bg-red-950/20 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-red-300 active:scale-[0.98] transition cursor-pointer"
                   >
-                    Sign out
+                    <LogOut size={14} />
+                    <span>Sign Out</span>
                   </button>
-                </>
+                </div>
               ) : (
                 <div className="grid grid-cols-2 gap-3 w-full">
                   <Link
                     href="/login"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-white hover:bg-white/10"
+                    className="rounded-xl border border-white/15 bg-white/[0.05] hover:bg-white/[0.1] py-3 text-center text-xs font-bold uppercase tracking-wider text-white transition active:scale-[0.98]"
                   >
                     Sign In
                   </Link>
                   <Link
                     href="/register"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="rounded-xl bg-gradient-to-r from-mars-red to-mars-orange px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-white shadow-lg"
+                    className="rounded-xl bg-gradient-to-r from-mars-red to-mars-orange py-3 text-center text-xs font-bold uppercase tracking-wider text-white shadow-lg active:scale-[0.98] transition"
                   >
                     Join Team
                   </Link>
