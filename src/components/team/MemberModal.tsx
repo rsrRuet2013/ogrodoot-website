@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { ExternalLink, Mail, Phone, UserRound, X, Award, Crown, GraduationCap } from "lucide-react";
+import { ExternalLink, Mail, Phone, UserRound, X } from "lucide-react";
 
 export type ModalMember = {
   _id: string;
@@ -55,21 +55,21 @@ export function MemberModal({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-white/20 bg-[#0d1017] shadow-2xl"
+        className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-white/15 bg-gradient-to-b from-[#0e1320] via-[#080b12] to-black shadow-[0_20px_50px_rgba(0,0,0,0.9)] p-6 sm:p-7 text-center animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-3.5 top-3.5 z-20 rounded-full bg-black/70 p-2 text-white/80 hover:text-white hover:bg-black transition-all border border-white/20 cursor-pointer"
-          aria-label="Close details dialog"
+          className="absolute right-3.5 top-3.5 z-20 rounded-full bg-white/5 hover:bg-white/15 p-1.5 text-white/60 hover:text-white transition-all border border-white/10 cursor-pointer"
+          aria-label="Close dialog"
         >
-          <X size={18} />
+          <X size={16} />
         </button>
 
-        {/* Modal Profile Image Header */}
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-black">
+        {/* Crisp, Centered, Unobstructed Portrait Photo */}
+        <div className="relative mx-auto w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-2 border-mars-orange/60 shadow-[0_8px_24px_rgba(193,68,14,0.3)] bg-black/80 shrink-0">
           {member.profilePicUrl ? (
             <img
               src={member.profilePicUrl}
@@ -77,89 +77,67 @@ export function MemberModal({
               className="h-full w-full object-cover object-top"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-slate-600">
-              <UserRound size={56} />
+            <div className="flex h-full w-full items-center justify-center bg-slate-900 text-slate-500">
+              <UserRound size={44} />
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0d1017] via-transparent to-transparent" />
         </div>
 
-        {/* Modal Detailed Info Body */}
-        <div className="p-6 sm:p-7 -mt-6 relative z-10">
-          {/* Badges */}
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span
-              className={`inline-flex items-center gap-1 rounded-full px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-wider ${
-                isTeamLead
-                  ? "bg-mars-orange/15 border border-mars-orange/40 text-mars-orange"
-                  : isCoTeamLead
-                  ? "bg-amber-400/15 border border-amber-400/40 text-amber-300"
-                  : isSubTeamLead
-                  ? "bg-cyan-500/15 border border-cyan-500/40 text-cyan-300"
-                  : "bg-white/10 border border-white/15 text-white/80"
-              }`}
-            >
-              {isTeamLead || isCoTeamLead ? <Crown size={12} /> : <Award size={12} />}
-              {member.position}
-            </span>
+        {/* Member Name */}
+        <h3 className="font-heading text-lg sm:text-xl font-extrabold text-white mt-4 tracking-tight leading-snug">
+          {member.name}
+        </h3>
 
-            <span className="inline-flex items-center rounded-full bg-white/10 border border-white/15 px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-wider text-white/80">
+        {/* Minimal Badges Row */}
+        <div className="flex flex-wrap items-center justify-center gap-1.5 mt-2">
+          <span
+            className={`px-2.5 py-0.5 rounded-full font-mono text-[10px] font-bold uppercase tracking-wider ${
+              isTeamLead
+                ? "bg-mars-orange text-black font-extrabold"
+                : isCoTeamLead
+                ? "bg-amber-400 text-black font-extrabold"
+                : isSubTeamLead
+                ? "bg-emerald-500 text-black font-extrabold"
+                : "bg-white/10 text-white/80"
+            }`}
+          >
+            {member.position || "Member"}
+          </span>
+
+          {member.subTeam && (
+            <span className="px-2.5 py-0.5 rounded-full font-mono text-[10px] text-white/70 bg-white/5 border border-white/10">
               {member.subTeam}
             </span>
+          )}
 
-            {member.memberType === "Alumni" ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-purple-500/15 border border-purple-500/30 px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-wider text-purple-300">
-                <GraduationCap size={12} />
-                Alumni
-              </span>
-            ) : (
-              <span className="inline-flex items-center rounded-full bg-blue-500/10 border border-blue-500/30 px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-wider text-blue-300">
-                Current Member
-              </span>
-            )}
+          {seriesLabel && (
+            <span className="px-2.5 py-0.5 rounded-full font-mono text-[10px] text-white/50 bg-white/5 border border-white/10">
+              {seriesLabel}
+            </span>
+          )}
+        </div>
 
-            {seriesLabel && (
-              <span className="inline-flex items-center rounded-full bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-wider text-cyan-300">
-                {seriesLabel}
-              </span>
-            )}
-          </div>
-
-          {/* Name & Title */}
-          <h3 className="font-heading text-2xl sm:text-3xl font-extrabold text-white">
-            {member.name}
-          </h3>
-
-          {/* Detailed Contact List */}
-          <div className="mt-5 space-y-3 border-t border-white/10 pt-4 text-xs sm:text-sm text-white/80">
+        {/* Minimal Clean Contact Links */}
+        {(member.email || member.mobile || member.linkedin) && (
+          <div className="mt-5 pt-4 border-t border-white/10 space-y-2 text-left">
             {member.email && (
-              <div className="flex items-center justify-between gap-3 rounded-xl bg-black/40 border border-white/10 p-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <Mail size={16} className="text-mars-orange shrink-0" />
-                  <span className="truncate font-medium">{member.email}</span>
-                </div>
-                <a
-                  href={`mailto:${member.email}`}
-                  className="rounded-lg bg-mars-red/20 border border-mars-orange/50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-mars-orange hover:bg-mars-red hover:text-white transition shrink-0"
-                >
-                  Email
-                </a>
-              </div>
+              <a
+                href={`mailto:${member.email}`}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-white/80 hover:text-white transition-all group"
+              >
+                <Mail size={14} className="text-mars-orange shrink-0 group-hover:scale-110 transition-transform" />
+                <span className="truncate text-xs font-mono flex-1">{member.email}</span>
+              </a>
             )}
 
             {member.mobile && (
-              <div className="flex items-center justify-between gap-3 rounded-xl bg-black/40 border border-white/10 p-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <Phone size={16} className="text-mars-orange shrink-0" />
-                  <span className="truncate font-medium">{member.mobile}</span>
-                </div>
-                <a
-                  href={`tel:${member.mobile}`}
-                  className="rounded-lg bg-mars-red/20 border border-mars-orange/50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-mars-orange hover:bg-mars-red hover:text-white transition shrink-0"
-                >
-                  Call
-                </a>
-              </div>
+              <a
+                href={`tel:${member.mobile}`}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-white/80 hover:text-white transition-all group"
+              >
+                <Phone size={14} className="text-mars-orange shrink-0 group-hover:scale-110 transition-transform" />
+                <span className="truncate text-xs font-mono flex-1">{member.mobile}</span>
+              </a>
             )}
 
             {member.linkedin && (
@@ -167,19 +145,19 @@ export function MemberModal({
                 href={member.linkedin}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-between gap-3 rounded-xl bg-black/40 border border-white/10 p-3 hover:border-mars-orange/60 transition group"
+                className="flex items-center justify-between px-3 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-white/80 hover:text-white transition-all group"
               >
-                <div className="flex items-center gap-3 min-w-0">
-                  <ExternalLink size={16} className="text-mars-orange shrink-0" />
-                  <span className="truncate font-medium text-white/90 group-hover:text-mars-orange transition-colors">
-                    LinkedIn Profile
-                  </span>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <ExternalLink size={14} className="text-mars-orange shrink-0 group-hover:scale-110 transition-transform" />
+                  <span className="truncate text-xs font-mono">LinkedIn Profile</span>
                 </div>
-                <span className="text-xs text-white/40 group-hover:text-white transition">Visit →</span>
+                <span className="text-[10px] text-white/40 group-hover:text-mars-orange transition-colors">
+                  Visit →
+                </span>
               </a>
             )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
