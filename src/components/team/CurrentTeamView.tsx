@@ -48,14 +48,21 @@ export function CurrentTeamView() {
         <>
           {/* SECTION 1: Team Leadership (Overall Team Lead & Co-Team Lead) */}
           <section className="relative text-center">
-            <h2 className="font-heading text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight text-white mb-6">
+            <h2 className="font-heading text-lg sm:text-2xl md:text-3xl font-black uppercase tracking-tight text-white mb-5">
               Team Leadership
             </h2>
 
             {overallLeads.length > 0 ? (
-              <div className="flex flex-wrap justify-center items-stretch gap-6 max-w-3xl mx-auto">
+              <div className="flex flex-wrap justify-center items-stretch gap-2.5 sm:gap-6 max-w-xs min-[400px]:max-w-sm sm:max-w-lg md:max-w-xl mx-auto">
                 {overallLeads.map((lead) => (
-                  <div key={lead._id} className="w-full sm:w-72 md:w-80 max-w-xs">
+                  <div
+                    key={lead._id}
+                    className={`${
+                      overallLeads.length === 1
+                        ? "w-40 min-[400px]:w-44 sm:w-56 md:w-60"
+                        : "w-[calc(50%-5px)] sm:w-56 md:w-60 max-w-[240px]"
+                    } flex`}
+                  >
                     <MemberCard
                       member={lead}
                       featured

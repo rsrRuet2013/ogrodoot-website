@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { Search, X, Users, UserRound, Crown, Award } from "lucide-react";
+import { Search, X, Users, UserRound } from "lucide-react";
 import { MemberModal, type ModalMember } from "@/components/team/MemberModal";
 
 export type AlumniMember = ModalMember;
@@ -30,7 +30,7 @@ export function CompactAlumniCard({
     <button
       type="button"
       onClick={onClick}
-      className={`group relative w-full overflow-hidden rounded-xl border text-center transition-all duration-200 hover:-translate-y-1 focus:outline-none focus:ring-1 focus:ring-mars-orange/50 cursor-pointer ${
+      className={`group relative w-full overflow-hidden rounded-xl border text-center transition-all duration-200 hover:-translate-y-1 focus:outline-none focus:ring-1 focus:ring-mars-orange/50 cursor-pointer flex flex-col ${
         isTeamLead
           ? "border-mars-orange/50 bg-[#0d0f17] hover:border-mars-orange"
           : isCoTeamLead
@@ -40,25 +40,7 @@ export function CompactAlumniCard({
           : "border-white/10 bg-[#080b12] hover:border-white/25 hover:bg-[#0c101a]"
       }`}
     >
-      {/* Leadership Role Indicator Accent */}
-      {(isTeamLead || isCoTeamLead || isSubTeamLead) && (
-        <div className="absolute top-1 right-1 z-20">
-          <span
-            className={`inline-flex items-center justify-center w-3 h-3 rounded-full text-[7px] font-bold ${
-              isTeamLead
-                ? "bg-mars-orange text-black"
-                : isCoTeamLead
-                ? "bg-amber-400 text-black"
-                : "bg-emerald-400 text-black"
-            }`}
-            title={member.position}
-          >
-            {isTeamLead || isCoTeamLead ? <Crown size={6} /> : <Award size={6} />}
-          </span>
-        </div>
-      )}
-
-      {/* Proportional Square Photo */}
+      {/* Proportional Square Photo - Unobstructed & Clear */}
       <div className="relative aspect-square w-full overflow-hidden bg-black/60">
         {member.profilePicUrl ? (
           <img
@@ -71,11 +53,10 @@ export function CompactAlumniCard({
             <UserRound size={22} className="sm:scale-125" />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-transparent to-transparent opacity-60" />
       </div>
 
-      {/* Info Section */}
-      <div className="p-1.5 sm:p-2 bg-[#080b12] border-t border-white/5 space-y-0.5">
+      {/* Info Section - Minimal & Clean */}
+      <div className="p-1 sm:p-1.5 bg-[#080b12] border-t border-white/5 space-y-0.5 text-center flex-1 flex flex-col justify-center">
         <p className="font-heading font-semibold text-[10px] sm:text-xs text-white group-hover:text-mars-orange transition-colors line-clamp-1 leading-tight">
           {member.name}
         </p>

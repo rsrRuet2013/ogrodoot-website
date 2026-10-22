@@ -50,9 +50,6 @@ export function TeamDetailView({ teamMeta }: { teamMeta: TeamMeta }) {
       <section className="border-b border-white/10 pb-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-mars-orange block mb-1">
-              {teamMeta.code}
-            </span>
             <h1 className="font-heading font-black text-2xl sm:text-4xl md:text-5xl text-white tracking-tight uppercase leading-tight">
               {teamMeta.name}
             </h1>
@@ -89,14 +86,21 @@ export function TeamDetailView({ teamMeta }: { teamMeta: TeamMeta }) {
         <>
           {/* SECTION A: Team Leadership (Sub-Team Leads centered at the top) */}
           <section className="relative text-center">
-            <h2 className="font-heading text-lg sm:text-xl md:text-2xl font-bold uppercase tracking-wider text-white mb-6">
+            <h2 className="font-heading text-base sm:text-lg md:text-xl font-bold uppercase tracking-wider text-white mb-5">
               Team Leadership
             </h2>
 
             {leaders.length > 0 ? (
-              <div className="flex flex-wrap justify-center items-stretch gap-6 max-w-3xl mx-auto">
+              <div className="flex flex-wrap justify-center items-stretch gap-2.5 sm:gap-4 max-w-xs min-[400px]:max-w-sm sm:max-w-md md:max-w-xl mx-auto">
                 {leaders.map((leader) => (
-                  <div key={leader._id} className="w-full sm:w-72 md:w-80 max-w-xs">
+                  <div
+                    key={leader._id}
+                    className={`${
+                      leaders.length === 1
+                        ? "w-36 min-[400px]:w-40 sm:w-40 md:w-44"
+                        : "w-[calc(50%-5px)] sm:w-40 md:w-44 max-w-[170px]"
+                    } flex`}
+                  >
                     <MemberCard
                       member={leader}
                       subteamLead

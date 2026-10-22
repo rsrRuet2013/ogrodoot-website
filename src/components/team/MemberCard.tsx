@@ -1,6 +1,6 @@
 "use client";
 
-import { Award, Crown, UserRound } from "lucide-react";
+import { UserRound } from "lucide-react";
 import type { ModalMember } from "./MemberModal";
 
 export function MemberCard({
@@ -26,18 +26,10 @@ export function MemberCard({
       <button
         type="button"
         onClick={onClick}
-        className="group relative w-full overflow-hidden rounded-2xl border border-mars-orange/60 bg-gradient-to-b from-mars-red/20 via-[#0d1017] to-black text-left shadow-[0_12px_32px_rgba(193,68,14,0.22)] transition-all duration-300 hover:-translate-y-1.5 hover:border-mars-orange hover:shadow-[0_16px_40px_rgba(193,68,14,0.35)] focus:outline-none focus:ring-2 focus:ring-mars-orange/50 cursor-pointer"
+        className="group relative w-full overflow-hidden rounded-xl sm:rounded-2xl border border-mars-orange/60 bg-[#0d1017] text-left shadow-[0_8px_24px_rgba(193,68,14,0.18)] transition-all duration-300 hover:-translate-y-1 hover:border-mars-orange hover:shadow-[0_12px_28px_rgba(193,68,14,0.3)] focus:outline-none focus:ring-1 focus:ring-mars-orange/50 cursor-pointer flex flex-col"
       >
-        {/* Leadership Tag */}
-        <div className="absolute top-2.5 right-2.5 z-20">
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-mono text-[9px] font-extrabold uppercase tracking-wider backdrop-blur-md bg-mars-orange text-black shadow-md">
-            <Crown size={9} />
-            {isCoTeamLead ? "CO-TEAM LEAD" : "TEAM LEAD"}
-          </span>
-        </div>
-
-        {/* Prominent Image Box */}
-        <div className="relative aspect-[4/4.6] w-full overflow-hidden bg-black/60">
+        {/* Proportional Square Photo - Unobstructed & Crisp */}
+        <div className="relative aspect-square w-full overflow-hidden bg-black/60">
           {member.profilePicUrl ? (
             <img
               src={member.profilePicUrl}
@@ -46,75 +38,55 @@ export function MemberCard({
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-slate-900/90 text-slate-500">
-              <UserRound size={48} />
+              <UserRound size={32} className="sm:scale-125" />
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-black/20 to-transparent opacity-95 group-hover:opacity-75 transition-opacity duration-300" />
         </div>
 
-        {/* Member Info */}
-        <div className="p-4 relative z-10 bg-[#080b12]/95 backdrop-blur-sm border-t border-white/5 space-y-1 text-center">
-          <p className="font-heading font-bold text-base sm:text-lg text-white group-hover:text-mars-orange transition-colors line-clamp-1">
+        {/* Member Info - Clean, Minimal & Compact */}
+        <div className="p-1.5 sm:p-2 relative z-10 bg-[#080b12] border-t border-white/5 space-y-0.5 text-center flex-1 flex flex-col justify-center">
+          <p className="font-heading font-bold text-xs sm:text-[13px] text-white group-hover:text-mars-orange transition-colors line-clamp-1 leading-tight">
             {member.name}
           </p>
-          <p className="font-mono text-xs font-semibold uppercase tracking-wider text-mars-orange">
+          <p className="font-mono text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-mars-orange leading-tight">
             {member.position}
           </p>
-          {showSubTeam && member.subTeam && (
-            <p className="font-mono text-[10px] text-white/40 truncate">
-              {member.subTeam}
-            </p>
-          )}
         </div>
       </button>
     );
   }
 
-  // 2. Sub-Team Leadership Card (prominent on individual /team/[slug] page)
-  if (subteamLead || (isSubTeamLead && !featured)) {
+  // 2. Sub-Team Leadership Card (clean & proportional on individual /team/[slug] page)
+  if (subteamLead) {
     return (
       <button
         type="button"
         onClick={onClick}
-        className="group relative w-full overflow-hidden rounded-2xl border border-emerald-500/40 bg-[#081210] text-left shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:border-emerald-400 hover:bg-[#0a1814] hover:shadow-[0_12px_32px_rgba(16,185,129,0.22)] focus:outline-none focus:ring-2 focus:ring-emerald-400/50 cursor-pointer"
+        className="group relative w-full overflow-hidden rounded-xl border border-emerald-500/50 bg-[#081210] text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-emerald-400 hover:bg-[#0a1814] hover:shadow-[0_8px_20px_rgba(16,185,129,0.18)] focus:outline-none focus:ring-1 focus:ring-emerald-400/50 cursor-pointer flex flex-col"
       >
-        {/* Subtle Green Sub-Team Lead Tag */}
-        <div className="absolute top-2.5 right-2.5 z-20">
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-mono text-[9px] font-extrabold uppercase tracking-wider backdrop-blur-md bg-emerald-500 text-black shadow-md">
-            <Award size={9} />
-            SUB-TEAM LEAD
-          </span>
-        </div>
-
-        {/* Image Box */}
-        <div className="relative aspect-[4/4.5] w-full overflow-hidden bg-black/60">
+        {/* Proportional Square Photo - Unobstructed & Crisp */}
+        <div className="relative aspect-square w-full overflow-hidden bg-black/60">
           {member.profilePicUrl ? (
             <img
               src={member.profilePicUrl}
               alt={member.name}
-              className="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105"
+              className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-slate-900/90 text-slate-500">
-              <UserRound size={42} />
+              <UserRound size={26} className="sm:scale-110" />
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#081210] via-black/25 to-transparent opacity-95 group-hover:opacity-75 transition-opacity duration-300" />
         </div>
 
-        {/* Member Info */}
-        <div className="p-3.5 relative z-10 bg-[#081210]/95 backdrop-blur-sm border-t border-emerald-500/10 space-y-1 text-center">
-          <p className="font-heading font-bold text-sm sm:text-base text-white group-hover:text-emerald-300 transition-colors line-clamp-1">
+        {/* Member Info - Clean, Minimal & Compact */}
+        <div className="p-1.5 sm:p-2 relative z-10 bg-[#081210] border-t border-emerald-500/15 text-center space-y-0.5 flex-1 flex flex-col justify-center">
+          <p className="font-heading font-bold text-[11px] sm:text-xs text-white group-hover:text-emerald-300 transition-colors line-clamp-1 leading-tight">
             {member.name}
           </p>
-          <p className="font-mono text-xs font-semibold uppercase tracking-wider text-emerald-400">
+          <p className="font-mono text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-emerald-400 leading-tight">
             Sub-team Lead
           </p>
-          {member.studentId && (
-            <p className="font-mono text-[10px] text-white/40">
-              ID: {member.studentId}
-            </p>
-          )}
         </div>
       </button>
     );
@@ -125,7 +97,7 @@ export function MemberCard({
     <button
       type="button"
       onClick={onClick}
-      className={`group relative w-full overflow-hidden rounded-xl border text-center transition-all duration-200 hover:-translate-y-1 focus:outline-none focus:ring-1 focus:ring-mars-orange/50 cursor-pointer ${
+      className={`group relative w-full overflow-hidden rounded-xl border text-center transition-all duration-200 hover:-translate-y-1 focus:outline-none focus:ring-1 focus:ring-mars-orange/50 cursor-pointer flex flex-col ${
         isTeamLead
           ? "border-mars-orange/50 bg-[#0d0f17] hover:border-mars-orange"
           : isCoTeamLead
@@ -135,23 +107,7 @@ export function MemberCard({
           : "border-white/10 bg-[#080b12] hover:border-white/25 hover:bg-[#0c101a]"
       }`}
     >
-      {/* Compact Leadership Accent Indicator */}
-      {(isTeamLead || isCoTeamLead || isSubTeamLead) && (
-        <div className="absolute top-1 right-1 z-20">
-          <span
-            className={`inline-block w-2 h-2 rounded-full ring-2 ring-black ${
-              isTeamLead
-                ? "bg-mars-orange"
-                : isCoTeamLead
-                ? "bg-amber-400"
-                : "bg-emerald-400"
-            }`}
-            title={member.position}
-          />
-        </div>
-      )}
-
-      {/* Compact Image Box: 1:1 Aspect Ratio */}
+      {/* Compact Image Box: 1:1 Aspect Ratio - Clean & Unobstructed */}
       <div className="relative aspect-square w-full overflow-hidden bg-black/60">
         {member.profilePicUrl ? (
           <img
@@ -164,11 +120,10 @@ export function MemberCard({
             <UserRound size={22} className="sm:scale-125" />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-transparent to-transparent opacity-60" />
       </div>
 
-      {/* Compact Member Info */}
-      <div className="p-1.5 sm:p-2 bg-[#080b12] border-t border-white/5 space-y-0.5">
+      {/* Compact Member Info - Minimal Wasted Space */}
+      <div className="p-1 sm:p-1.5 bg-[#080b12] border-t border-white/5 space-y-0.5 text-center flex-1 flex flex-col justify-center">
         <p className="font-heading font-semibold text-[10px] sm:text-xs text-white group-hover:text-mars-orange transition-colors line-clamp-1 leading-tight">
           {member.name}
         </p>
