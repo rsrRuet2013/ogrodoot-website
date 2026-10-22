@@ -6,7 +6,7 @@ import { POSITIONS } from "@/lib/member-options";
 import { 
   UserRound, Check, X, Trash2, AlertCircle, Crown, Shield, UserCheck, 
   Award, Calendar, Newspaper, Upload, Plus, ExternalLink, Image as ImageIcon,
-  CheckCircle2, Clock, Trophy
+  CheckCircle2, Clock, Trophy, Pencil
 } from "lucide-react";
 
 type User = {
@@ -75,6 +75,7 @@ export function AdminDashboard() {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
   const [eventSubmitting, setEventSubmitting] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
   const eventFormRef = useRef<HTMLFormElement>(null);
 
   // Media State
@@ -87,6 +88,8 @@ export function AdminDashboard() {
   const [competitions, setCompetitions] = useState<CompetitionItem[]>([]);
   const [competitionsLoading, setCompetitionsLoading] = useState(false);
   const [competitionSubmitting, setCompetitionSubmitting] = useState(false);
+  const [editingCompetition, setEditingCompetition] = useState<CompetitionItem | null>(null);
+  const [editSubmitting, setEditSubmitting] = useState(false);
   const competitionFormRef = useRef<HTMLFormElement>(null);
 
   // Load Members
@@ -166,7 +169,10 @@ export function AdminDashboard() {
   }
 
   async function setPosition(id: string, newPosition: string) {
-    const role = newPosition === "Team Lead" || newPosition === "Sub-team Lead" ? "lead" : "member";
+    const role =
+      newPosition === "Team Lead" || newPosition === "Co-Team Lead" || newPosition === "Sub-team Lead"
+        ? "lead"
+        : "member";
     await patchUser(id, { position: newPosition, role });
   }
 
@@ -325,6 +331,54 @@ export function AdminDashboard() {
     }
   }
 
+  async function handleUpdateEvent(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!editingEvent) return;
+    setEditSubmitting(true);
+    setNotice("");
+    const formData = new FormData(e.currentTarget);
+
+    try {
+      const res = await fetch(`/api/events/${editingEvent._id}`, {
+        method: "PATCH",
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update event");
+      setNotice("Event updated successfully! Changes are live on /events.");
+      setEditingEvent(null);
+      loadEvents();
+    } catch (err: any) {
+      setNotice(err.message || "Failed to update event.");
+    } finally {
+      setEditSubmitting(false);
+    }
+  }
+
+  async function handleUpdateCompetition(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!editingCompetition) return;
+    setEditSubmitting(true);
+    setNotice("");
+    const formData = new FormData(e.currentTarget);
+
+    try {
+      const res = await fetch(`/api/competitions/${editingCompetition._id}`, {
+        method: "PATCH",
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update competition");
+      setNotice("Competition updated successfully! It now appears first on /competitions.");
+      setEditingCompetition(null);
+      loadCompetitions();
+    } catch (err: any) {
+      setNotice(err.message || "Failed to update competition.");
+    } finally {
+      setEditSubmitting(false);
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Top Main Navigation Tabs */}
@@ -441,6 +495,7 @@ export function AdminDashboard() {
                 <tbody className="divide-y divide-white/5">
                   {users.map((user) => {
                     const isTeamLead = user.position === "Team Lead";
+                    const isCoTeamLead = user.position === "Co-Team Lead";
                     const isSubTeamLead = user.position === "Sub-team Lead";
                     const isAlumni = user.memberType === "Alumni";
 
@@ -462,6 +517,12 @@ export function AdminDashboard() {
                                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-mars-orange/20 border border-mars-orange/50 text-mars-orange text-[9px] font-mono font-extrabold uppercase">
                                     <Crown size={10} />
                                     Lead
+                                  </span>
+                                )}
+                                {isCoTeamLead && (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[9px] font-mono font-extrabold uppercase">
+                                    <Crown size={10} />
+                                    Co-Lead
                                   </span>
                                 )}
                                 {isSubTeamLead && (
@@ -511,6 +572,8 @@ export function AdminDashboard() {
                             className={`w-full max-w-[190px] rounded-lg border px-2.5 py-1.5 text-xs font-semibold outline-none cursor-pointer ${
                               isTeamLead
                                 ? "border-mars-orange/60 bg-mars-orange/15 text-mars-orange"
+                                : isCoTeamLead
+                                ? "border-amber-400/50 bg-amber-400/15 text-amber-300"
                                 : isSubTeamLead
                                 ? "border-cyan-400/50 bg-cyan-400/15 text-cyan-300"
                                 : "border-white/15 bg-black/60 text-white focus:border-mars-orange"
@@ -518,6 +581,7 @@ export function AdminDashboard() {
                           >
                             <option value="Member" className="bg-slate-900 text-white">General Member</option>
                             <option value="Sub-team Lead" className="bg-slate-900 text-cyan-300">Sub-team Lead</option>
+                            <option value="Co-Team Lead" className="bg-slate-900 text-amber-300 font-bold">Co-Team Lead (Top Display)</option>
                             <option value="Team Lead" className="bg-slate-900 text-mars-orange font-bold">Team Lead (Top Display)</option>
                           </select>
                         </td>
@@ -788,14 +852,24 @@ export function AdminDashboard() {
 
                     <div className="mt-4 pt-3 border-t border-white/[0.08] flex items-center justify-between">
                       <span className="font-mono text-[10px] text-white/40">{comp.roverVersion || "Rover"}</span>
-                      <button
-                        onClick={() => removeCompetition(comp._id)}
-                        className="inline-flex items-center gap-1 text-xs text-red-400 hover:text-red-300 font-medium cursor-pointer"
-                        title="Delete competition"
-                      >
-                        <Trash2 size={13} />
-                        <span>Delete</span>
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => setEditingCompetition(comp)}
+                          className="inline-flex items-center gap-1 text-xs text-mars-orange hover:text-orange-300 font-semibold cursor-pointer"
+                          title="Edit competition"
+                        >
+                          <Pencil size={13} />
+                          <span>Edit</span>
+                        </button>
+                        <button
+                          onClick={() => removeCompetition(comp._id)}
+                          className="inline-flex items-center gap-1 text-xs text-red-400 hover:text-red-300 font-medium cursor-pointer"
+                          title="Delete competition"
+                        >
+                          <Trash2 size={13} />
+                          <span>Delete</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -989,13 +1063,24 @@ export function AdminDashboard() {
                         Set to {ev.status === "upcoming" ? "completed" : "upcoming"}
                       </button>
 
-                      <button
-                        onClick={() => removeEvent(ev._id)}
-                        className="p-1.5 rounded-lg text-white/40 hover:text-red-400 transition cursor-pointer"
-                        title="Delete event"
-                      >
-                        <Trash2 size={15} />
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => setEditingEvent(ev)}
+                          className="inline-flex items-center gap-1 text-xs text-mars-orange hover:text-orange-300 font-semibold cursor-pointer"
+                          title="Edit event"
+                        >
+                          <Pencil size={13} />
+                          <span>Edit</span>
+                        </button>
+
+                        <button
+                          onClick={() => removeEvent(ev._id)}
+                          className="p-1.5 rounded-lg text-white/40 hover:text-red-400 transition cursor-pointer"
+                          title="Delete event"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1140,6 +1225,311 @@ export function AdminDashboard() {
                 ))}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* EDIT EVENT MODAL */}
+      {editingEvent && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto"
+          onClick={() => setEditingEvent(null)}
+        >
+          <div 
+            className="relative w-full max-w-2xl my-8 rounded-2xl border border-white/20 bg-[#0d1017] p-6 sm:p-8 shadow-2xl text-white"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <Calendar size={18} className="text-mars-orange" />
+                <h3 className="font-heading text-lg font-bold uppercase tracking-wider">
+                  Edit Event
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingEvent(null)}
+                className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateEvent} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1.5">Event Title *</label>
+                  <input
+                    name="title"
+                    required
+                    defaultValue={editingEvent.title}
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-mars-orange"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1.5">Status</label>
+                  <select
+                    name="status"
+                    defaultValue={editingEvent.status}
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-mars-orange cursor-pointer"
+                  >
+                    <option value="upcoming" className="bg-slate-900 text-mars-orange font-bold">Upcoming Event (Hero Spotlight)</option>
+                    <option value="completed" className="bg-slate-900 text-white">Completed (Archive)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1.5">Date *</label>
+                  <input
+                    name="date"
+                    required
+                    defaultValue={editingEvent.date}
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-mars-orange"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1.5">Location *</label>
+                  <input
+                    name="location"
+                    required
+                    defaultValue={editingEvent.location}
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-mars-orange"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1.5">Registration Link</label>
+                  <input
+                    name="registrationLink"
+                    defaultValue={editingEvent.registrationLink || ""}
+                    placeholder="https://..."
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-mars-orange"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1.5">Category</label>
+                  <input
+                    name="category"
+                    defaultValue={editingEvent.category || "Workshop"}
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-mars-orange"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-white/60 mb-1.5">Description *</label>
+                <textarea
+                  name="description"
+                  required
+                  rows={3}
+                  defaultValue={editingEvent.description}
+                  className="w-full rounded-xl border border-white/15 bg-black/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-mars-orange"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1.5">Replace Cover Photo (ImageKit)</label>
+                  <input
+                    name="coverPhoto"
+                    type="file"
+                    accept="image/*"
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3 py-2 text-xs text-white/80 file:mr-3 file:rounded-lg file:border-0 file:bg-mars-orange/20 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-mars-orange cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1.5">Or Cover Photo URL</label>
+                  <input
+                    name="coverPhotoUrl"
+                    defaultValue={editingEvent.coverPhoto}
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-mars-orange"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setEditingEvent(null)}
+                  className="rounded-xl px-4 py-2.5 text-xs text-white/60 hover:text-white transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={editSubmitting}
+                  className="rounded-xl bg-gradient-to-r from-mars-red to-mars-orange px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg hover:brightness-110 transition disabled:opacity-50 cursor-pointer"
+                >
+                  {editSubmitting ? "Saving Changes..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* EDIT COMPETITION MODAL */}
+      {editingCompetition && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto"
+          onClick={() => setEditingCompetition(null)}
+        >
+          <div 
+            className="relative w-full max-w-2xl my-8 rounded-2xl border border-white/20 bg-[#0d1017] p-6 sm:p-8 shadow-2xl text-white"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <Trophy size={18} className="text-mars-orange" />
+                <h3 className="font-heading text-lg font-bold uppercase tracking-wider">
+                  Edit Competition
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingCompetition(null)}
+                className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateCompetition} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1.5">Competition Title *</label>
+                  <input
+                    name="title"
+                    required
+                    defaultValue={editingCompetition.title}
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-mars-orange"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1.5">Organizer</label>
+                  <input
+                    name="organizer"
+                    defaultValue={editingCompetition.organizer || ""}
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-mars-orange"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1.5">Location *</label>
+                  <input
+                    name="location"
+                    required
+                    defaultValue={editingCompetition.location}
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-mars-orange"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1.5">Year / Season *</label>
+                  <input
+                    name="year"
+                    required
+                    defaultValue={editingCompetition.year}
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-mars-orange"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1.5">Category</label>
+                  <select
+                    name="category"
+                    defaultValue={editingCompetition.category}
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-mars-orange cursor-pointer"
+                  >
+                    <option value="International" className="bg-slate-900 text-white">International</option>
+                    <option value="National" className="bg-slate-900 text-white">National</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1.5">Result / Award</label>
+                  <input
+                    name="result"
+                    defaultValue={editingCompetition.result || ""}
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-mars-orange"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1.5">Rover Model / Version</label>
+                  <input
+                    name="roverVersion"
+                    defaultValue={editingCompetition.roverVersion || ""}
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-mars-orange"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1.5">Status</label>
+                  <select
+                    name="status"
+                    defaultValue={editingCompetition.status}
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-mars-orange cursor-pointer"
+                  >
+                    <option value="completed" className="bg-slate-900 text-white">Completed</option>
+                    <option value="upcoming" className="bg-slate-900 text-mars-orange font-bold">Upcoming Campaign</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-white/60 mb-1.5">Description</label>
+                <textarea
+                  name="description"
+                  rows={3}
+                  defaultValue={editingCompetition.description || ""}
+                  className="w-full rounded-xl border border-white/15 bg-black/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-mars-orange"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1.5">Replace Cover Photo (ImageKit)</label>
+                  <input
+                    name="coverPhoto"
+                    type="file"
+                    accept="image/*"
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3 py-2 text-xs text-white/80 file:mr-3 file:rounded-lg file:border-0 file:bg-mars-orange/20 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-mars-orange cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1.5">Or Existing Photo URL</label>
+                  <input
+                    name="existingPhotoUrl"
+                    defaultValue={editingCompetition.coverPhoto}
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-mars-orange"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setEditingCompetition(null)}
+                  className="rounded-xl px-4 py-2.5 text-xs text-white/60 hover:text-white transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={editSubmitting}
+                  className="rounded-xl bg-gradient-to-r from-mars-red to-mars-orange px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg hover:brightness-110 transition disabled:opacity-50 cursor-pointer"
+                >
+                  {editSubmitting ? "Updating Competition..." : "Update Competition"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

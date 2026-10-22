@@ -74,11 +74,15 @@ const DEFAULT_COMPLETED = [
   },
 ];
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   try {
     await connectToDatabase();
-    const upcoming = await Event.findOne({ status: "upcoming" }).sort({ createdAt: -1 }).lean();
-    const completed = await Event.find({ status: "completed" }).sort({ order: 1, createdAt: -1 }).lean();
+    // Sort by updatedAt descending so newly created or edited upcoming events show immediately
+    const upcoming = await Event.findOne({ status: "upcoming" }).sort({ updatedAt: -1, createdAt: -1 }).lean();
+    const completed = await Event.find({ status: "completed" }).sort({ updatedAt: -1, createdAt: -1 }).lean();
 
     return NextResponse.json({
       upcoming: upcoming || DEFAULT_UPCOMING,

@@ -91,6 +91,9 @@ export const DEFAULT_COMPETITIONS = [
   },
 ];
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -98,7 +101,8 @@ export async function GET(request: Request) {
 
     await connectToDatabase();
     const query = category ? { category } : {};
-    const items = await Competition.find(query).sort({ order: 1, year: -1, createdAt: -1 }).lean();
+    // Sort by updatedAt descending so latest updated competition appears first
+    const items = await Competition.find(query).sort({ updatedAt: -1, createdAt: -1 }).lean();
 
     if (items.length > 0) {
       return NextResponse.json({ items });

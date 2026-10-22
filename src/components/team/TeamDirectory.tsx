@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ExternalLink, Mail, Phone, UserRound, X, Award, MapPin } from "lucide-react";
+import { ExternalLink, Mail, Phone, UserRound, X, Award } from "lucide-react";
 
 type Member = {
   _id: string;

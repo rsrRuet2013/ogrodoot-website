@@ -1,102 +1,115 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { ExternalLink, Mail, Phone, UserRound, X, Award, GraduationCap } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import { Search, X, Users, UserRound, Crown, Award } from "lucide-react";
+import { MemberModal, type ModalMember } from "@/components/team/MemberModal";
 
-type AlumniMember = {
-  _id: string;
-  name: string;
-  email: string;
-  studentId: string;
-  mobile: string;
-  profilePicUrl: string;
-  subTeam: string;
-  memberType: string;
-  position: string;
-  linkedin?: string;
-};
+export type AlumniMember = ModalMember;
 
-type AlumniSection = {
-  subTeam: string;
-  members: AlumniMember[];
-};
-
-function getSeriesLabel(studentId: string) {
-  const clean = (studentId || "").trim();
-  if (/^\d{7}$/.test(clean)) {
-    return `Series '${clean.slice(0, 2)}`;
-  }
-  return clean ? `ID: ${clean}` : "";
+function getLeadershipRank(pos: string) {
+  const p = (pos || "").trim().toLowerCase();
+  if (p === "team lead") return 1;
+  if (p === "co-team lead" || p === "co team lead") return 2;
+  if (p === "sub-team lead" || p === "sub team lead" || p === "subteam lead") return 3;
+  if (p.includes("lead") || p.includes("head") || p.includes("director")) return 4;
+  return 5;
 }
 
-function AlumniCard({
+export function CompactAlumniCard({
   member,
   onClick,
 }: {
   member: AlumniMember;
   onClick: () => void;
 }) {
-  const seriesLabel = getSeriesLabel(member.studentId);
+  const isTeamLead = member.position === "Team Lead";
+  const isCoTeamLead = member.position === "Co-Team Lead";
+  const isSubTeamLead = member.position === "Sub-team Lead";
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className="group relative w-full overflow-hidden rounded-2xl border border-white/10 bg-[#080b12] text-left transition-all duration-300 hover:-translate-y-1.5 hover:border-mars-orange/60 hover:bg-[#0c101a] hover:shadow-[0_12px_35px_rgba(0,0,0,0.9)] focus:outline-none focus:ring-2 focus:ring-mars-orange/50 cursor-pointer"
+      className={`group relative w-full overflow-hidden rounded-xl border text-center transition-all duration-200 hover:-translate-y-1 focus:outline-none focus:ring-1 focus:ring-mars-orange/50 cursor-pointer ${
+        isTeamLead
+          ? "border-mars-orange/50 bg-[#0d0f17] hover:border-mars-orange"
+          : isCoTeamLead
+          ? "border-amber-400/40 bg-[#0d121c] hover:border-amber-400"
+          : isSubTeamLead
+          ? "border-emerald-500/40 bg-[#081210] hover:border-emerald-400"
+          : "border-white/10 bg-[#080b12] hover:border-white/25 hover:bg-[#0c101a]"
+      }`}
     >
-      {/* Series / Batch Tag */}
-      {seriesLabel && (
-        <div className="absolute top-2.5 right-2.5 z-20">
-          <span className="inline-block px-2.5 py-0.5 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider backdrop-blur-md bg-white/10 text-white/90 border border-white/15 shadow-sm">
-            {seriesLabel}
+      {/* Leadership Role Indicator Accent */}
+      {(isTeamLead || isCoTeamLead || isSubTeamLead) && (
+        <div className="absolute top-1 right-1 z-20">
+          <span
+            className={`inline-flex items-center justify-center w-3 h-3 rounded-full text-[7px] font-bold ${
+              isTeamLead
+                ? "bg-mars-orange text-black"
+                : isCoTeamLead
+                ? "bg-amber-400 text-black"
+                : "bg-emerald-400 text-black"
+            }`}
+            title={member.position}
+          >
+            {isTeamLead || isCoTeamLead ? <Crown size={6} /> : <Award size={6} />}
           </span>
         </div>
       )}
 
-      {/* Member Profile Image */}
-      <div className="relative aspect-[4/4.5] w-full overflow-hidden bg-black/60">
+      {/* Proportional Square Photo */}
+      <div className="relative aspect-square w-full overflow-hidden bg-black/60">
         {member.profilePicUrl ? (
           <img
             src={member.profilePicUrl}
             alt={member.name}
-            className="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105"
+            className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-slate-900 text-slate-600">
-            <UserRound size={40} />
+          <div className="flex h-full w-full items-center justify-center bg-slate-900/90 text-slate-500">
+            <UserRound size={22} className="sm:scale-125" />
           </div>
         )}
-
-        {/* Bottom Image Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-black/20 to-transparent opacity-90 group-hover:opacity-60 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-transparent to-transparent opacity-60" />
       </div>
 
       {/* Info Section */}
-      <div className="p-3.5 relative z-10 bg-[#080b12]/95 backdrop-blur-sm border-t border-white/5">
-        <p className="font-heading text-sm sm:text-base font-bold text-white group-hover:text-mars-orange transition-colors line-clamp-1">
+      <div className="p-1.5 sm:p-2 bg-[#080b12] border-t border-white/5 space-y-0.5">
+        <p className="font-heading font-semibold text-[10px] sm:text-xs text-white group-hover:text-mars-orange transition-colors line-clamp-1 leading-tight">
           {member.name}
         </p>
 
-        <div className="flex items-center justify-between gap-1 mt-1">
-          <p className="font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-mars-orange line-clamp-1">
-            {member.position || "Alumnus"}
+        <p
+          className={`font-mono text-[8px] sm:text-[9px] uppercase tracking-wider line-clamp-1 leading-tight ${
+            isTeamLead
+              ? "text-mars-orange font-bold"
+              : isCoTeamLead
+              ? "text-amber-300 font-bold"
+              : isSubTeamLead
+              ? "text-emerald-400 font-bold"
+              : "text-white/50"
+          }`}
+        >
+          {isTeamLead ? "Team Lead" : isCoTeamLead ? "Co-Lead" : isSubTeamLead ? "Sub-Lead" : "Member"}
+        </p>
+
+        {member.subTeam && (
+          <p className="font-mono text-[8px] text-white/35 truncate leading-tight">
+            {member.subTeam.replace(" & ", "/")}
           </p>
-          {member.studentId && (
-            <span className="font-mono text-[10px] text-white/40 shrink-0">
-              {member.studentId}
-            </span>
-          )}
-        </div>
+        )}
       </div>
     </button>
   );
 }
 
 export function AlumniDirectory() {
-  const [sections, setSections] = useState<AlumniSection[]>([]);
-  const [totalCount, setTotalCount] = useState<number>(0);
+  const [alumni, setAlumni] = useState<AlumniMember[]>([]);
   const [selected, setSelected] = useState<AlumniMember | null>(null);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [roleFilter, setRoleFilter] = useState<"all" | "leads" | "subleads" | "members">("all");
 
   useEffect(() => {
     fetch("/api/alumni")
@@ -105,206 +118,178 @@ export function AlumniDirectory() {
         return res.json();
       })
       .then((data) => {
-        setSections(data.sections || []);
-        setTotalCount(data.totalCount || 0);
+        let list: AlumniMember[] = [];
+        if (Array.isArray(data.alumni)) {
+          list = data.alumni;
+        } else if (Array.isArray(data.sections)) {
+          list = data.sections.flatMap((s: { members: AlumniMember[] }) => s.members);
+        }
+
+        // Hierarchical sort: Team Leads -> Sub-Team Leads -> Members, then by series/studentId
+        list.sort((a, b) => {
+          const rankA = getLeadershipRank(a.position);
+          const rankB = getLeadershipRank(b.position);
+          if (rankA !== rankB) return rankA - rankB;
+
+          const idA = parseInt(a.studentId, 10) || 0;
+          const idB = parseInt(b.studentId, 10) || 0;
+          if (idA !== idB) return idA - idB;
+
+          return (
+            (a.studentId || "").localeCompare(b.studentId || "", undefined, { numeric: true }) ||
+            a.name.localeCompare(b.name)
+          );
+        });
+
+        setAlumni(list);
         setState("ready");
       })
       .catch(() => setState("error"));
   }, []);
 
+  const filteredAlumni = useMemo(() => {
+    return alumni.filter((member) => {
+      if (roleFilter === "leads") {
+        if (member.position !== "Team Lead" && member.position !== "Co-Team Lead") return false;
+      } else if (roleFilter === "subleads") {
+        if (member.position !== "Sub-team Lead") return false;
+      } else if (roleFilter === "members") {
+        if (member.position === "Team Lead" || member.position === "Co-Team Lead" || member.position === "Sub-team Lead") return false;
+      }
+
+      if (searchQuery.trim()) {
+        const query = searchQuery.trim().toLowerCase();
+        const matchesName = member.name.toLowerCase().includes(query);
+        const matchesId = (member.studentId || "").toLowerCase().includes(query);
+        const matchesTeam = (member.subTeam || "").toLowerCase().includes(query);
+        if (!matchesName && !matchesId && !matchesTeam) return false;
+      }
+
+      return true;
+    });
+  }, [alumni, roleFilter, searchQuery]);
+
   return (
-    <section className="relative w-full py-4 text-white">
+    <section className="relative w-full text-white">
       {/* Loading State */}
       {state === "loading" && (
         <div className="flex items-center gap-3 border-l-2 border-mars-orange pl-4 py-2 my-8">
-          <span className="w-2.5 h-2.5 rounded-full bg-mars-orange animate-ping" />
+          <span className="w-2 rounded-full h-2 bg-mars-orange animate-ping" />
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-white/50">
-            Loading alumni directory…
+            Loading alumni…
           </p>
         </div>
       )}
 
       {/* Error State */}
       {state === "error" && (
-        <div className="rounded-xl border border-red-500/30 bg-red-950/20 p-4 text-sm text-red-200 backdrop-blur-md my-8">
-          The alumni roster is temporarily unavailable. Please try again shortly.
+        <div className="rounded-xl border border-red-500/30 bg-red-950/20 p-4 text-xs text-red-200 backdrop-blur-md my-8">
+          Unable to load alumni. Please try again shortly.
         </div>
       )}
 
-      {/* Empty State */}
-      {state === "ready" && sections.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-white/10 bg-black/30 px-6 py-12 text-center my-8">
-          <GraduationCap size={36} className="mx-auto text-white/30 mb-3" />
-          <p className="font-heading text-lg text-white/70">Alumni Roster Updating</p>
-          <p className="mt-1 text-sm text-white/40 max-w-md mx-auto">
-            Graduated members registered as alumni will appear here sorted by series once approved.
-          </p>
-        </div>
-      )}
-
-      {/* Sub-team Lists - Sorted by Student ID, No Mention of Anyone at Top */}
-      {state === "ready" && sections.length > 0 && (
-        <div className="space-y-12 md:space-y-16">
-          <div className="flex items-center justify-between border-b border-white/10 pb-4">
-            <div>
-              <h3 className="font-heading text-xl sm:text-2xl font-black uppercase tracking-wider text-white">
-                Alumni Roster
-              </h3>
-              <p className="font-mono text-xs text-white/50 uppercase tracking-widest mt-1">
-                Sorted by Division & Seniority (Student ID)
-              </p>
-            </div>
-            <span className="font-mono text-xs text-mars-orange font-bold px-3 py-1 rounded-full bg-mars-orange/10 border border-mars-orange/30">
-              {totalCount} Verified Alumni
-            </span>
-          </div>
-
-          {sections.map((section, index) => (
-            <div key={section.subTeam}>
-              {/* Section Header */}
-              <div className="mb-5 flex items-center gap-3">
-                <span className="font-mono text-xs text-mars-orange font-bold">
-                  0{index + 1}
-                </span>
-                <h4 className="font-heading text-lg sm:text-xl font-bold uppercase tracking-wider text-white">
-                  {section.subTeam}
-                </h4>
-                <div className="h-px flex-1 bg-gradient-to-r from-white/20 via-mars-orange/20 to-transparent" />
-                <span className="font-mono text-[11px] text-white/40">
-                  {section.members.length} {section.members.length === 1 ? "member" : "members"}
-                </span>
-              </div>
-
-              {/* Grid of Alumni Cards */}
-              <div className="grid gap-3.5 sm:gap-5 grid-cols-2 min-[540px]:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-                {section.members.map((member) => (
-                  <AlumniCard
-                    key={member._id}
-                    member={member}
-                    onClick={() => setSelected(member)}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Detailed Alumni Info Modal Popup */}
-      {selected && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4 backdrop-blur-md animate-in fade-in duration-200"
-          onClick={() => setSelected(null)}
-        >
-          <div
-            className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-white/20 bg-[#0d1017] shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Close Button */}
-            <button
-              type="button"
-              onClick={() => setSelected(null)}
-              className="absolute right-3.5 top-3.5 z-20 rounded-full bg-black/70 p-2 text-white/80 hover:text-white hover:bg-black transition-all border border-white/20 cursor-pointer"
-              aria-label="Close details dialog"
-            >
-              <X size={18} />
-            </button>
-
-            {/* Modal Profile Image */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden bg-black">
-              {selected.profilePicUrl ? (
-                <img
-                  src={selected.profilePicUrl}
-                  alt={selected.name}
-                  className="h-full w-full object-cover object-top"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-slate-600">
-                  <UserRound size={56} />
-                </div>
+      {/* Minimal Directory Body */}
+      {state === "ready" && (
+        <div className="space-y-6">
+          {/* Minimal Controls Bar: Compact Search & Role Filter Buttons */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2.5 sm:p-3 rounded-xl bg-white/[0.03] border border-white/10">
+            {/* Search Input */}
+            <div className="relative flex-1 max-w-sm">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search alumni..."
+                className="w-full pl-8 pr-7 py-1.5 rounded-lg bg-black/60 border border-white/15 text-xs text-white placeholder-white/40 focus:outline-none focus:border-mars-orange transition-colors"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                  aria-label="Clear search"
+                >
+                  <X size={12} />
+                </button>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0d1017] via-transparent to-transparent" />
             </div>
 
-            {/* Modal Details */}
-            <div className="p-6 sm:p-7 -mt-6 relative z-10">
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="inline-flex items-center gap-1 rounded-full bg-mars-orange/15 border border-mars-orange/40 px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-wider text-mars-orange">
-                  <GraduationCap size={12} />
-                  Alumni Network
-                </span>
-                <span className="inline-flex items-center rounded-full bg-white/10 border border-white/15 px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-wider text-white/80">
-                  {selected.subTeam}
-                </span>
-                {selected.studentId && (
-                  <span className="inline-flex items-center rounded-full bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-wider text-cyan-300">
-                    {getSeriesLabel(selected.studentId)}
-                  </span>
-                )}
-              </div>
-
-              <h3 className="font-heading text-2xl sm:text-3xl font-extrabold text-white">
-                {selected.name}
-              </h3>
-              <p className="font-mono text-xs text-white/60 mt-1">
-                Role / Recorded Position: <span className="text-white">{selected.position}</span>
-              </p>
-
-              {/* Detailed Contact List */}
-              <div className="mt-5 space-y-3 border-t border-white/10 pt-4 text-xs sm:text-sm text-white/80">
-                {selected.email && (
-                  <div className="flex items-center justify-between gap-3 rounded-xl bg-black/40 border border-white/10 p-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <Mail size={16} className="text-mars-orange shrink-0" />
-                      <span className="truncate font-medium">{selected.email}</span>
-                    </div>
-                    <a
-                      href={`mailto:${selected.email}`}
-                      className="rounded-lg bg-mars-red/20 border border-mars-orange/50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-mars-orange hover:bg-mars-red hover:text-white transition shrink-0"
-                    >
-                      Email
-                    </a>
-                  </div>
-                )}
-
-                {selected.mobile && (
-                  <div className="flex items-center justify-between gap-3 rounded-xl bg-black/40 border border-white/10 p-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <Phone size={16} className="text-mars-orange shrink-0" />
-                      <span className="truncate font-medium">{selected.mobile}</span>
-                    </div>
-                    <a
-                      href={`tel:${selected.mobile}`}
-                      className="rounded-lg bg-mars-red/20 border border-mars-orange/50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-mars-orange hover:bg-mars-red hover:text-white transition shrink-0"
-                    >
-                      Call
-                    </a>
-                  </div>
-                )}
-
-                {selected.linkedin && (
-                  <a
-                    href={selected.linkedin}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center justify-between gap-3 rounded-xl bg-black/40 border border-white/10 p-3 hover:border-mars-orange/60 transition group"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <ExternalLink size={16} className="text-mars-orange shrink-0" />
-                      <span className="truncate font-medium text-white/90 group-hover:text-mars-orange transition-colors">
-                        LinkedIn Profile
-                      </span>
-                    </div>
-                    <span className="text-xs text-white/40 group-hover:text-white transition">Visit →</span>
-                  </a>
-                )}
-              </div>
+            {/* Role Filter Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+              <button
+                type="button"
+                onClick={() => setRoleFilter("all")}
+                className={`px-2.5 py-1 rounded-md font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
+                  roleFilter === "all"
+                    ? "bg-mars-orange text-black font-extrabold"
+                    : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                All ({alumni.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setRoleFilter("leads")}
+                className={`px-2.5 py-1 rounded-md font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
+                  roleFilter === "leads"
+                    ? "bg-mars-orange text-black font-extrabold"
+                    : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                Team Leads
+              </button>
+              <button
+                type="button"
+                onClick={() => setRoleFilter("subleads")}
+                className={`px-2.5 py-1 rounded-md font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
+                  roleFilter === "subleads"
+                    ? "bg-emerald-500 text-black font-extrabold"
+                    : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                Sub-Leads
+              </button>
+              <button
+                type="button"
+                onClick={() => setRoleFilter("members")}
+                className={`px-2.5 py-1 rounded-md font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
+                  roleFilter === "members"
+                    ? "bg-white/20 text-white font-extrabold"
+                    : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                Members
+              </button>
             </div>
           </div>
+
+          {/* Empty State / No Match */}
+          {filteredAlumni.length === 0 && (
+            <div className="rounded-xl border border-dashed border-white/10 bg-black/20 p-8 text-center my-6">
+              <Users size={28} className="mx-auto text-white/30 mb-2" />
+              <p className="font-heading text-xs text-white/70">No matching alumni found</p>
+              <p className="text-[11px] text-white/40 mt-0.5">Try adjusting your search query or role filter.</p>
+            </div>
+          )}
+
+          {/* 4 Cards Per Row on Mobile: Unified Alumni Cards Grid */}
+          {filteredAlumni.length > 0 && (
+            <div className="grid grid-cols-2 min-[340px]:grid-cols-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2 sm:gap-2.5 md:gap-3">
+              {filteredAlumni.map((member) => (
+                <CompactAlumniCard
+                  key={member._id}
+                  member={member}
+                  onClick={() => setSelected(member)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
+
+      {/* Member Profile Modal Popup */}
+      <MemberModal member={selected} onClose={() => setSelected(null)} />
     </section>
   );
 }

@@ -1,18 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { 
   Calendar, 
   MapPin, 
   ChevronRight, 
   ArrowUpRight, 
-  ArrowRight,
   Sparkles,
-  X
+  X,
+  Radio
 } from "lucide-react";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 type EventItem = {
   _id?: string;
@@ -29,22 +35,22 @@ type EventItem = {
 
 const DEFAULT_UPCOMING: EventItem = {
   _id: "default-upcoming-1",
-  title: "Mars Rover Engineering Seminar & RUET Recruitment Workshop",
+  title: "Recruitment 4.0: Mars Rover Mission Call",
   description:
-    "An interactive seminar and recruitment session introducing prospective student engineers to planetary robotics, subteam architectures, ROS2 autonomy, and live rover field demonstrations.",
-  date: "November 14, 2026",
-  location: "Central Auditorium, RUET",
+    "Annual recruitment session and technical onboarding for prospective mechanical, electrical, software, and science team members at RUET.",
+  date: "September 30, 2026",
+  location: "RUET Campus, Rajshahi",
   status: "upcoming",
   coverPhoto: "/photots/mars_rover.jpg",
-  registrationLink: "https://forms.gle/ogrodoot-workshop-2026",
-  category: "Seminar",
+  registrationLink: "https://team-ogrodoot-recruitment.ai.studio/",
+  category: "Recruitment",
 };
 
 const DEFAULT_COMPLETED: EventItem[] = [
   {
     _id: "default-past-1",
     title: "Autonomous Navigation & ROS2 Hands-on Workshop",
-    description: "Intensive 3-day technical training on LiDAR point clouds, SLAM mapping, and micro-ROS microcontroller interfacing.",
+    description: "Technical training on LiDAR point clouds, SLAM mapping, and micro-ROS microcontroller interfacing.",
     date: "July 2025",
     location: "CSE Seminar Room, RUET",
     status: "completed",
@@ -54,7 +60,7 @@ const DEFAULT_COMPLETED: EventItem[] = [
   {
     _id: "default-past-2",
     title: "Space Exploration & Astrobiology Symposium",
-    description: "Inter-departmental colloquium exploring biosignature detection methods, soil chemical assays, and planetary geology.",
+    description: "Colloquium exploring biosignature detection methods, soil chemical assays, and planetary geology.",
     date: "February 2024",
     location: "ME Conference Hall, RUET",
     status: "completed",
@@ -64,7 +70,7 @@ const DEFAULT_COMPLETED: EventItem[] = [
   {
     _id: "default-past-3",
     title: "Rocker-Bogie Chassis Fabrication & CAD Bootcamp",
-    description: "Hands-on chassis prototyping, CNC milling, and finite element stress analysis for aspiring rover builders.",
+    description: "Chassis prototyping, CNC milling, and finite element stress analysis for aspiring rover builders.",
     date: "October 2023",
     location: "Central Machine Shop, RUET",
     status: "completed",
@@ -74,7 +80,7 @@ const DEFAULT_COMPLETED: EventItem[] = [
   {
     _id: "default-past-4",
     title: "Youth STEM & Space Robotics Outreach",
-    description: "Live rover demonstrations and inspirational aerospace talks for local high school and college students.",
+    description: "Live rover demonstrations and aerospace tech talks for local high school and college students.",
     date: "May 2023",
     location: "Rajshahi Collegiate School",
     status: "completed",
@@ -88,8 +94,11 @@ export default function EventsPage() {
   const [completed, setCompleted] = useState<EventItem[]>(DEFAULT_COMPLETED);
   const [activePhoto, setActivePhoto] = useState<string | null>(null);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const cardsRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    fetch("/api/events")
+    fetch("/api/events", { cache: "no-store" })
       .then(async (res) => {
         if (!res.ok) return;
         const data = await res.json();
@@ -105,66 +114,111 @@ export default function EventsPage() {
       });
   }, []);
 
+  // GSAP Entrance & ScrollTrigger animations
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const ctx = gsap.context(() => {
+      // Header reveal
+      gsap.from(".event-header-anim", {
+        opacity: 0,
+        y: 28,
+        duration: 0.8,
+        stagger: 0.12,
+        ease: "power3.out",
+      });
+
+      // Featured card pop
+      gsap.from(".event-featured-card", {
+        opacity: 0,
+        scale: 0.96,
+        y: 35,
+        duration: 0.9,
+        delay: 0.25,
+        ease: "power2.out",
+      });
+
+      // Archive grid scroll stagger
+      if (cardsRef.current) {
+        gsap.from(".event-archive-card", {
+          scrollTrigger: {
+            trigger: cardsRef.current,
+            start: "top 85%",
+          },
+          opacity: 0,
+          y: 30,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: "power2.out",
+        });
+      }
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, [completed]);
+
   return (
-    <main className="relative min-h-[100dvh] overflow-hidden bg-[#050505] text-white pt-28 pb-24">
-      {/* Subtle Mars Ambient Background Glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[350px] bg-gradient-to-b from-mars-red/10 via-transparent to-transparent rounded-full blur-[140px] pointer-events-none" />
+    <main ref={containerRef} className="relative min-h-[100dvh] overflow-hidden bg-[#050505] text-white pt-28 pb-24">
+      {/* Ambient Mars Deep Space Lighting */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[400px] bg-gradient-to-b from-mars-red/15 via-transparent to-transparent rounded-full blur-[160px] pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Navigation Breadcrumb */}
-        <div className="flex items-center gap-2 mb-8 text-xs text-white/50">
-          <Link href="/" className="hover:text-white transition-colors">
+        <div className="event-header-anim flex items-center gap-2 mb-8 text-xs text-white/50">
+          <Link href="/" className="hover:text-mars-orange transition-colors">
             Home
           </Link>
           <ChevronRight size={12} className="text-white/30" />
-          <span className="text-white/80 font-medium">Events</span>
+          <span className="text-white/90 font-medium">Events</span>
         </div>
 
         {/* Minimal Hero Header */}
         <div className="mb-14 pb-8 border-b border-white/[0.08]">
-          <span className="font-mono text-xs uppercase tracking-[0.25em] text-mars-orange font-semibold block mb-2">
-            Workshops, Seminars & Field Operations
-          </span>
-          <h1 className="font-heading font-black text-3xl sm:text-4xl md:text-5xl text-white tracking-tight uppercase">
+          <div className="event-header-anim inline-flex items-center gap-2 px-3 py-1 rounded-full bg-mars-orange/10 border border-mars-orange/30 text-mars-orange font-mono text-[11px] font-semibold uppercase tracking-[0.2em] mb-3">
+            <Radio size={12} className="animate-pulse text-mars-orange" />
+            <span>Field Trials & Workshops</span>
+          </div>
+          <h1 className="event-header-anim font-heading font-black text-3xl sm:text-4xl md:text-5xl text-white tracking-tight uppercase">
             Team Events
           </h1>
-          <p className="mt-3 text-sm text-white/65 max-w-xl font-normal leading-relaxed">
-            University outreach, hands-on robotics workshops, technical seminars, and team field sessions organized by Team Ogrodoot at RUET.
+          <p className="event-header-anim mt-3 text-sm text-white/65 max-w-xl font-normal leading-relaxed">
+            University outreach, hands-on robotics workshops, technical testing, and team field sessions organized by Team Ogrodoot at RUET.
           </p>
         </div>
 
-        {/* UPCOMING FEATURED EVENT (If Available) */}
+        {/* UPCOMING FEATURED EVENT */}
         {upcoming && (
-          <motion.section 
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1.0] }}
-            className="mb-20"
-          >
-            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/[0.1] bg-[#090b10] shadow-2xl">
+          <section className="event-featured-card mb-20">
+            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/[0.12] bg-[#080b12] shadow-2xl hover:border-mars-orange/40 transition-colors duration-500">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 items-stretch">
                 
                 {/* Photo Frame (7 cols) */}
                 <div 
-                  className="relative lg:col-span-7 min-h-[260px] sm:min-h-[340px] lg:min-h-[420px] overflow-hidden bg-black cursor-pointer"
-                  onClick={() => setActivePhoto(upcoming.coverPhoto)}
+                  className="relative lg:col-span-7 min-h-[260px] sm:min-h-[340px] lg:min-h-[420px] overflow-hidden bg-black cursor-pointer group"
+                  onClick={() => setActivePhoto(upcoming.coverPhoto || "/photots/mars_rover.jpg")}
                 >
                   <Image
-                    src={upcoming.coverPhoto}
+                    src={upcoming.coverPhoto || "/photots/mars_rover.jpg"}
                     alt={upcoming.title}
                     fill
                     priority
                     sizes="(max-width: 1024px) 100vw, 60vw"
-                    className="object-cover object-center transition-transform duration-700 ease-out hover:scale-105"
+                    className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#090b10] via-transparent to-transparent lg:hidden" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-transparent to-transparent lg:hidden" />
 
                   {/* Top Category Badge */}
-                  <div className="absolute top-4 left-4 z-10">
-                    <span className="font-mono text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full bg-mars-orange text-black shadow-lg">
-                      Upcoming Event
+                  <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
+                    <span className="font-mono text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full bg-mars-orange text-black shadow-lg flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-black animate-ping" />
+                      <span>Upcoming Event</span>
                     </span>
+                    {upcoming.category && (
+                      <span className="font-mono text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-white/90">
+                        {upcoming.category}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -175,7 +229,7 @@ export default function EventsPage() {
                     <div className="space-y-2 border-b border-white/[0.08] pb-4">
                       <div className="flex items-center gap-2 text-xs font-mono text-mars-orange">
                         <Calendar size={13} className="shrink-0" />
-                        <span>{upcoming.date}</span>
+                        <span className="font-bold">{upcoming.date}</span>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-white/60">
                         <MapPin size={13} className="text-white/40 shrink-0" />
@@ -187,28 +241,28 @@ export default function EventsPage() {
                       {upcoming.title}
                     </h2>
 
-                    <p className="text-xs sm:text-sm text-white/65 leading-relaxed font-sans">
+                    <p className="text-xs sm:text-sm text-white/70 leading-relaxed font-sans">
                       {upcoming.description}
                     </p>
                   </div>
 
-                  {/* Action Button: Button-in-Button Architecture */}
+                  {/* Action Link */}
                   <div className="pt-6 mt-6 border-t border-white/[0.08]">
                     {upcoming.registrationLink ? (
                       <a
                         href={upcoming.registrationLink}
                         target="_blank"
                         rel="noreferrer"
-                        className="group inline-flex items-center justify-between gap-4 w-full sm:w-auto rounded-full bg-gradient-to-r from-mars-red to-mars-orange pl-5 pr-2 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-lg hover:shadow-mars-orange/20 transition-all hover:scale-[1.01] active:scale-[0.99]"
+                        className="group inline-flex items-center justify-between gap-4 w-full sm:w-auto rounded-full bg-gradient-to-r from-mars-red to-mars-orange pl-5 pr-2 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-lg hover:brightness-110 transition-all hover:scale-[1.02] active:scale-[0.98]"
                       >
-                        <span>Register for Event</span>
+                        <span>Register Now</span>
                         <span className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
                           <ArrowUpRight size={14} />
                         </span>
                       </a>
                     ) : (
                       <span className="font-mono text-xs text-white/50 uppercase tracking-wider">
-                        Admission Open · On Campus
+                        Open Admission · RUET
                       </span>
                     )}
                   </div>
@@ -216,10 +270,10 @@ export default function EventsPage() {
 
               </div>
             </div>
-          </motion.section>
+          </section>
         )}
 
-        {/* PAST & COMPLETED EVENTS */}
+        {/* PAST & COMPLETED EVENTS ARCHIVE */}
         <section>
           <div className="flex items-end justify-between mb-8 pb-4 border-b border-white/[0.06]">
             <div>
@@ -232,30 +286,26 @@ export default function EventsPage() {
             </div>
           </div>
 
-          {/* Clean Multi-column Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Clean Grid */}
+          <div ref={cardsRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {completed.map((ev, idx) => (
-              <motion.div
+              <div
                 key={ev._id ?? `${ev.title}-${idx}`}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: idx * 0.08, ease: [0.25, 0.1, 0.25, 1.0] }}
-                className="group relative flex flex-col rounded-2xl sm:rounded-3xl bg-[#090b10] border border-white/[0.08] hover:border-mars-orange/40 overflow-hidden shadow-xl transition-all duration-300 hover:-translate-y-1"
+                className="event-archive-card group relative flex flex-col rounded-2xl sm:rounded-3xl bg-[#080b12] border border-white/[0.08] hover:border-mars-orange/40 overflow-hidden shadow-xl transition-all duration-300 hover:-translate-y-1.5"
               >
                 {/* Image Frame */}
                 <div 
                   className="relative aspect-[16/10] w-full overflow-hidden bg-black cursor-pointer"
-                  onClick={() => setActivePhoto(ev.coverPhoto)}
+                  onClick={() => setActivePhoto(ev.coverPhoto || "/photots/mars_rover.jpg")}
                 >
                   <Image
-                    src={ev.coverPhoto}
+                    src={ev.coverPhoto || "/photots/mars_rover.jpg"}
                     alt={ev.title}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#090b10] via-transparent to-transparent opacity-60" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-transparent to-transparent opacity-60" />
 
                   {/* Date Chip */}
                   <div className="absolute top-3 left-3 pointer-events-none">
@@ -290,7 +340,7 @@ export default function EventsPage() {
                     </div>
                   )}
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </section>
@@ -301,7 +351,7 @@ export default function EventsPage() {
             href="/competitions"
             className="inline-flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider text-white/60 hover:text-mars-orange transition-colors"
           >
-            <span>Interested in our international robotics campaigns? View Competitions</span>
+            <span>Explore our international robotics campaigns → View Competitions</span>
             <ChevronRight size={14} />
           </Link>
         </div>
